@@ -27,10 +27,23 @@ module LabelledFormHelper
           #{label}
           #{error_messages(method_name)}
         </label>
-        <textarea id="#{html_id}" name="#{param_name}" #{options}>#{value}</textarea>
+        <textarea id="#{html_id}" name="#{param_name}" #{options}>#{h value.to_s}</textarea>
       @
     end
 
+    def check_box(method_name, options = {}, checked_value = "1", unchecked_value = "0")
+      label, html_id, param_name, value, options = collect_data(method_name, options)
+      options += ' checked="checked"' if value
+      %Q@
+        <label for="#{html_id}">
+          #{label}
+          #{error_messages(method_name)}
+        </label>
+        <input id="#{html_id}" type="checkbox" name="#{param_name}" value="#{h checked_value}" #{options} />
+        <input type="hidden" name="#{param_name}" value="#{h unchecked_value}" />
+      @
+    end
+    
     def submit(value = 'Submit', options = {})
       options = {:type => 'submit', :value => value}.merge(options)
       if options[:class]
@@ -38,7 +51,7 @@ module LabelledFormHelper
       else
         options[:class] = 'submit'
       end
-      %Q@<input #{options.map { |k,v| "#{k}=\"#{CGI::escapeHTML(v.to_s)}\"" }.join(' ')}/>@
+      %Q@<input #{options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')}/>@
     end
 
   private
@@ -49,8 +62,8 @@ module LabelledFormHelper
         object.class.columns_hash[method_name.to_s].human_name,
         "#{object_name}_#{method_name}",
         "#{object_name}[#{method_name}]",
-        CGI::escapeHTML(object.send(method_name).to_s),
-        options.map { |k,v| "#{k}=\"#{CGI::escapeHTML(v.to_s)}\"" }.join(' ')
+        object.send(method_name),
+        options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
       ]
     end
 
@@ -61,7 +74,7 @@ module LabelledFormHelper
           #{label}
           #{error_messages(method_name)}
         </label>
-        <input id="#{html_id}" name="#{param_name}" value="#{value}" #{options}/>
+        <input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" #{options}/>
       @
     end
 
@@ -71,5 +84,7 @@ module LabelledFormHelper
         %Q@<span class="error_message">#{messages}</span>@
       end
     end
+    
+    def h(*args); CGI::escapeHTML(*args); end
   end
 end
