@@ -4,7 +4,8 @@ module LabelledFormHelper
   def labelled_form_for(name, object = nil, options = {}, &proc)
     object = instance_variable_get("@#{name}") unless object
     if messages = object.errors.on(:base)
-      concat(%Q[<span class="error_message">#{h(messages.to_sentence)}</span>], proc.binding)
+      messages = messages.to_sentence if messages.respond_to? :to_sentence
+      concat(%Q[<span class="error_message">#{h(messages)}</span>], proc.binding)
     end
     form_for(name, object, options.merge(:builder => LabelledFormBuilder), &proc)
   end
@@ -66,7 +67,8 @@ module LabelledFormHelper
 
     def error_messages(method_name)
       if messages = object.errors.on(method_name)
-        %Q@<span class="error_message">#{messages.to_sentence}</span>@
+        messages = messages.to_sentence if messages.respond_to? :to_sentence
+        %Q@<span class="error_message">#{messages}</span>@
       end
     end
   end
