@@ -25,30 +25,52 @@ module LabelledFormHelper
     end
 
     def hidden_field(method_name, options = {})
-      label, html_id, param_name, value, options = collect_data(method_name, options)
-      %Q@<input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" #{options} />@
+      label, html_id, param_name, value, html_options = collect_data(method_name, options)
+      %Q@<input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" type="hidden" #{html_options}/>@
     end
-    
-    def text_area(method_name, options = {})
-      label, html_id, param_name, value, options = collect_data(method_name, options)
+
+    def datetime_select(method_name, options = {})
+      label, html_id, param_name, value, html_options = collect_data(method_name, options)
       %Q@
         <label for="#{html_id}">
           #{label}
           #{error_messages(method_name)}
         </label>
-        <textarea id="#{html_id}" name="#{param_name}" #{options}>#{h value.to_s}</textarea>
+        #{@template.datetime_select object_name, method_name, options}
+      @
+    end
+
+    def date_select(method_name, options = {})
+      label, html_id, param_name, value, html_options = collect_data(method_name, options)
+      %Q@
+        <label for="#{html_id}">
+          #{label}
+          #{error_messages(method_name)}
+        </label>
+        #{@template.date_select object_name, method_name, options}
+      @
+    end
+    
+    def text_area(method_name, options = {})
+      label, html_id, param_name, value, html_options = collect_data(method_name, options)
+      %Q@
+        <label for="#{html_id}">
+          #{label}
+          #{error_messages(method_name)}
+        </label>
+        <textarea id="#{html_id}" name="#{param_name}" #{html_options}>#{h value.to_s}</textarea>
       @
     end
 
     def check_box(method_name, options = {}, checked_value = "1", unchecked_value = "0")
-      label, html_id, param_name, value, options = collect_data(method_name, options)
-      options += ' checked="checked"' if value
+      label, html_id, param_name, value, html_options = collect_data(method_name, options)
+      html_options += ' checked="checked"' if value
       %Q@
         <label for="#{html_id}">
           #{label}
           #{error_messages(method_name)}
         </label>
-        <input id="#{html_id}" type="checkbox" name="#{param_name}" value="#{h checked_value}" #{options} />
+        <input id="#{html_id}" type="checkbox" name="#{param_name}" value="#{h checked_value}" #{html_options} />
         <input type="hidden" name="#{param_name}" value="#{h unchecked_value}" />
       @
     end
@@ -66,9 +88,10 @@ module LabelledFormHelper
   private
     def collect_data(method_name, options)
       options[:class] = ((options[:class] || '') + ' error').strip if object.errors[method_name]
+      column = object.class.columns_hash[method_name.to_s]
 
       [
-        object.class.columns_hash[method_name.to_s].human_name,
+        column ? column.human_name : method_name.to_s.humanize,
         "#{object_name}_#{method_name}",
         "#{object_name}[#{method_name}]",
         object.send(method_name),
@@ -77,13 +100,13 @@ module LabelledFormHelper
     end
 
     def generic_field(method_name, options = {})
-      label, html_id, param_name, value, options = collect_data(method_name, options)
+      label, html_id, param_name, value, html_options = collect_data(method_name, options)
       %Q@
         <label for="#{html_id}">
           #{label}
           #{error_messages(method_name)}
         </label>
-        <input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" #{options}/>
+        <input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" #{html_options}/>
       @
     end
 
