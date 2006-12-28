@@ -5,76 +5,20 @@ module LabelledFormHelper
     object = instance_variable_get("@#{name}") unless object
     if messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
-      concat(%Q[<span class="error_message">#{h(messages)}</span>], proc.binding)
+      concat(%Q@<span class="error_message">#{h(messages)}</span>@, proc.binding)
     end
     form_for(name, object, options.merge(:builder => LabelledFormBuilder), &proc)
   end
 
   # Form build for +form_for+ method which includes labels with all form fields.
   class LabelledFormBuilder < ActionView::Helpers::FormBuilder
-    def text_field(method_name, options = {})
-      generic_field(method_name, {:type => 'text'}.merge(options))
+    %w(text_field password_field file_field check_box radio_button text_area hidden_field select
+              datetime_field date_field collection_select country_select time_zone_select).each do |method|
+      define_method(method.to_sym) do |method_name, *args|
+        label_tag(method_name) + @template.send(method.to_sym, object_name, method_name, *args)
+      end
     end
 
-    def password_field(method_name, options = {})
-      generic_field(method_name, {:type => 'password'}.merge(options))
-    end
-
-    def file_field(method_name, options = {})
-      generic_field(method_name, {:type => 'file'}.merge(options))
-    end
-
-    def hidden_field(method_name, options = {})
-      label, html_id, param_name, value, html_options = collect_data(method_name, options)
-      %Q@<input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" type="hidden" #{html_options}/>@
-    end
-
-    def datetime_select(method_name, options = {})
-      label, html_id, param_name, value, html_options = collect_data(method_name, options)
-      %Q@
-        <label for="#{html_id}">
-          #{label}
-          #{error_messages(method_name)}
-        </label>
-        #{@template.datetime_select object_name, method_name, options}
-      @
-    end
-
-    def date_select(method_name, options = {})
-      label, html_id, param_name, value, html_options = collect_data(method_name, options)
-      %Q@
-        <label for="#{html_id}">
-          #{label}
-          #{error_messages(method_name)}
-        </label>
-        #{@template.date_select object_name, method_name, options}
-      @
-    end
-    
-    def text_area(method_name, options = {})
-      label, html_id, param_name, value, html_options = collect_data(method_name, options)
-      %Q@
-        <label for="#{html_id}">
-          #{label}
-          #{error_messages(method_name)}
-        </label>
-        <textarea id="#{html_id}" name="#{param_name}" #{html_options}>#{h value.to_s}</textarea>
-      @
-    end
-
-    def check_box(method_name, options = {}, checked_value = "1", unchecked_value = "0")
-      label, html_id, param_name, value, html_options = collect_data(method_name, options)
-      html_options += ' checked="checked"' if value
-      %Q@
-        <label for="#{html_id}">
-          #{label}
-          #{error_messages(method_name)}
-        </label>
-        <input id="#{html_id}" type="checkbox" name="#{param_name}" value="#{h checked_value}" #{html_options} />
-        <input type="hidden" name="#{param_name}" value="#{h unchecked_value}" />
-      @
-    end
-    
     def submit(value = 'Submit', options = {})
       options = {:type => 'submit', :value => value}.merge(options)
       if options[:class]
@@ -86,27 +30,14 @@ module LabelledFormHelper
     end
 
   private
-    def collect_data(method_name, options)
-      options[:class] = ((options[:class] || '') + ' error').strip if object.errors[method_name]
+    def label_tag(method_name)
       column = object.class.columns_hash[method_name.to_s]
-
-      [
-        column ? column.human_name : method_name.to_s.humanize,
-        "#{object_name}_#{method_name}",
-        "#{object_name}[#{method_name}]",
-        object.send(method_name),
-        options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
-      ]
-    end
-
-    def generic_field(method_name, options = {})
-      label, html_id, param_name, value, html_options = collect_data(method_name, options)
       %Q@
-        <label for="#{html_id}">
-          #{label}
+        <label for=""#{object_name}_#{method_name}">
+          WEEEEEE1
+          #{column ? column.human_name : method_name.to_s.humanize}
           #{error_messages(method_name)}
         </label>
-        <input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" #{html_options}/>
       @
     end
 
