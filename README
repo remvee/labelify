@@ -1,0 +1,32 @@
+= Labelled Form Helper
+
+A custom version of +form_for+ which automatically adds labels to the input fields and places error messages, if they exists for that field, next to the label.
+
+== Example
+
+The following:
+  <% labelled_form_for :user, @user, {:action => 'profile'} do |f| -%>
+    <%= f.text_area('description') %>
+    <%= f.password_field('password') %>
+    <%= f.submit('Store') %>
+  <% end -%>
+  
+yields:
+  <form action="/profiel" method="post">  
+    <label for="user_description">
+      Description
+      <span class="error_message">can't be blank</span>
+    </label>
+    <textarea id="user_description" name="user[description]"></textarea>
+    <label for="user_password">
+      Password
+    </label>
+    <input id="user_password" name="user[password]" value="" type="password"/>
+    <input class="submit" value="Store" type="submit"/>
+  </form>
+  
+== Author
+R.W. van 't Veer
+
+== Copyright
+Copyright (c) 2006 R.W. van 't Veer

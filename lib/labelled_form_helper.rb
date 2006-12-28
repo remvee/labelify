@@ -1,0 +1,73 @@
+# Helper module for making labelled form.
+module LabelledFormHelper
+  # Pretty forms with labels.
+  def labelled_form_for(name, object = nil, options = {}, &proc)
+    object = instance_variable_get("@#{name}") unless object
+    if messages = object.errors.on(:base)
+      concat(%Q[<span class="error_message">#{h(messages.to_sentence)}</span>], proc.binding)
+    end
+    form_for(name, object, options.merge(:builder => LabelledFormBuilder), &proc)
+  end
+
+  # Form build for +form_for+ method which includes labels with all form fields.
+  class LabelledFormBuilder < ActionView::Helpers::FormBuilder
+    def text_field(method_name, options = {})
+      generic_field(method_name, {:type => 'text'}.merge(options))
+    end
+
+    def password_field(method_name, options = {})
+      generic_field(method_name, {:type => 'password'}.merge(options))
+    end
+
+    def text_area(method_name, options = {})
+      label, html_id, param_name, value, options = collect_data(method_name, options)
+      %Q@
+        <label for="#{html_id}">
+          #{label}
+          #{error_messages(method_name)}
+        </label>
+        <textarea id="#{html_id}" name="#{param_name}" #{options}>#{value}</textarea>
+      @
+    end
+
+    def submit(value = 'Submit', options = {})
+      options = {:type => 'submit', :value => value}.merge(options)
+      if options[:class]
+        options[:class] += ' submit'
+      else
+        options[:class] = 'submit'
+      end
+      %Q@<input #{options.map { |k,v| "#{k}=\"#{CGI::escapeHTML(v.to_s)}\"" }.join(' ')}/>@
+    end
+
+  private
+    def collect_data(method_name, options)
+      options[:class] = ((options[:class] || '') + ' error').strip if object.errors[method_name]
+
+      [
+        object.class.columns_hash[method_name.to_s].human_name,
+        "#{object_name}_#{method_name}",
+        "#{object_name}[#{method_name}]",
+        CGI::escapeHTML(object.send(method_name).to_s),
+        options.map { |k,v| "#{k}=\"#{CGI::escapeHTML(v.to_s)}\"" }.join(' ')
+      ]
+    end
+
+    def generic_field(method_name, options = {})
+      label, html_id, param_name, value, options = collect_data(method_name, options)
+      %Q@
+        <label for="#{html_id}">
+          #{label}
+          #{error_messages(method_name)}
+        </label>
+        <input id="#{html_id}" name="#{param_name}" value="#{value}" #{options}/>
+      @
+    end
+
+    def error_messages(method_name)
+      if messages = object.errors.on(method_name)
+        %Q@<span class="error_message">#{messages.to_sentence}</span>@
+      end
+    end
+  end
+end
