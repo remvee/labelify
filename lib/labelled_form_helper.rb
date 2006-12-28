@@ -20,6 +20,15 @@ module LabelledFormHelper
       generic_field(method_name, {:type => 'password'}.merge(options))
     end
 
+    def file_field(method_name, options = {})
+      generic_field(method_name, {:type => 'file'}.merge(options))
+    end
+
+    def hidden_field(method_name, options = {})
+      label, html_id, param_name, value, options = collect_data(method_name, options)
+      %Q@<input id="#{html_id}" name="#{param_name}" value="#{h value.to_s}" #{options} />@
+    end
+    
     def text_area(method_name, options = {})
       label, html_id, param_name, value, options = collect_data(method_name, options)
       %Q@
