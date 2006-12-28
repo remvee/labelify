@@ -5,7 +5,7 @@ A custom version of +form_for+ which automatically adds labels to the input fiel
 == Example
 
 The following:
-  <% labelled_form_for :user, @user, {:action => 'profile'} do |f| -%>
+  <% labelled_form_for :user, @user, :url => {:action => 'profile'} do |f| -%>
     <%= f.text_area('description') %>
     <%= f.password_field('password') %>
     <%= f.submit('Store') %>
