@@ -33,7 +33,7 @@ module LabelledFormHelper
     def label_tag(method_name)
       column = object.class.columns_hash[method_name.to_s]
       %Q@
-        <label for=""#{object_name}_#{method_name}">
+        <label for="#{object_name}_#{method_name}">
           #{column ? column.human_name : method_name.to_s.humanize}
           #{error_messages(method_name)}
         </label>
