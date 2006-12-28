@@ -2,6 +2,15 @@
 
 A custom version of +form_for+ which automatically adds labels to the input fields and places error messages, if they exists for that field, next to the label.
 
+== Usage
+
+Include the LabelledFormHelper in your ApplicationHelper;
+
+  module ApplicationHelper
+    include LabelledFormHelper
+    
+and use LabelledFormHelper.labelled_form_for like you would use +form_for+.  You don't need to make labels, use the LabelledFormHelper::LabelledFormBuilder.label method for that.  You don't need to use +error_messages_for+ method, errors will be included in the labels and base errors will appear directly after the form tag.
+
 == Example
 
 The following:
