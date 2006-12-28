@@ -34,7 +34,6 @@ module LabelledFormHelper
       column = object.class.columns_hash[method_name.to_s]
       %Q@
         <label for=""#{object_name}_#{method_name}">
-          WEEEEEE1
           #{column ? column.human_name : method_name.to_s.humanize}
           #{error_messages(method_name)}
         </label>
