@@ -17,7 +17,7 @@ yields:
       Description
       <span class="error_message">can't be blank</span>
     </label>
-    <textarea id="user_description" name="user[description]"></textarea>
+    <div class="fieldWithErrors"><textarea id="user_description" name="user[description]"></textarea></div>
     <label for="user_password">
       Password
     </label>
