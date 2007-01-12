@@ -26,10 +26,13 @@ module LabelledFormHelper
   # +radio_button+ and +hidden_field+, are decorated for labels.
   class LabelledFormBuilder < ActionView::Helpers::FormBuilder
     %w(text_field password_field file_field text_area select datetime_select date_select
-                    collection_select country_select time_zone_select).each do |method|
-      define_method(method.to_sym) do |method_name, *args|
-        label(method_name) + @template.send(method.to_sym, object_name, method_name, *args)
-      end
+                    collection_select country_select time_zone_select).each do |selector|
+      class_eval <<-end_src
+        def #{selector}(method, options = {})
+          label(method) +
+              @template.send(#{selector.inspect}, @object_name, method, options.merge(:object => @object))
+        end
+      end_src
     end
 
     # Returns a submit button.  This button has style class +submit+.
