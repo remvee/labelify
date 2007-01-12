@@ -45,7 +45,7 @@ module LabelledFormHelper
       else
         options[:class] = 'submit'
       end
-      %Q@<input #{options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')}/>@
+      %Q@<input #{options2attributes(options)}/>@
     end
 
     # Returns a label for a given attribute.  The +for+ attribute point to the same
@@ -55,7 +55,7 @@ module LabelledFormHelper
     def label(method_name, options = {})
       column = object.class.columns_hash[method_name.to_s]
       %Q@
-        <label for="#{object_name}_#{method_name}" #{options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')}>
+        <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
           #{column ? column.human_name : method_name.to_s.humanize}
           #{error_messages(method_name)}
         </label>
@@ -71,5 +71,9 @@ module LabelledFormHelper
     end
     
     def h(*args); CGI::escapeHTML(*args); end
+    
+    def options2attributes(options)
+      options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
+    end
   end
 end
