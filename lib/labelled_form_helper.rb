@@ -18,18 +18,19 @@ module LabelledFormHelper
       messages = messages.to_sentence if messages.respond_to? :to_sentence
       concat(%Q@<span class="error_message">#{h(messages)}</span>@, proc.binding)
     end
-    form_for(object_name, object, options.merge(:builder => LabelledFormBuilder), &proc)
+    options = options.merge(:binding => proc.binding, :builder => LabelledFormBuilder)
+    form_for(object_name, object, options, &proc)
   end
 
   # Form build for +form_for+ method which includes labels with almost all form fields.  All
   # form helper methods are handled and all of them, except for +check_box+,
   # +radio_button+ and +hidden_field+, are decorated for labels.
   class LabelledFormBuilder < ActionView::Helpers::FormBuilder
-    %w(text_field password_field file_field text_area select datetime_select date_select
+    %w(text_field password_field file_field text_area select check_box radio_button datetime_select date_select
                     collection_select country_select time_zone_select).each do |selector|
       class_eval <<-end_src
         def #{selector}(method, options = {})
-          label(method) +
+          concat label(method) +
               @template.send(#{selector.inspect}, @object_name, method, options.merge(:object => @object))
         end
       end_src
@@ -45,7 +46,7 @@ module LabelledFormHelper
       else
         options[:class] = 'submit'
       end
-      %Q@<input #{options2attributes(options)}/>@
+      concat %Q@<input #{options2attributes(options)}/>@
     end
 
     # Returns a label for a given attribute.  The +for+ attribute point to the same
@@ -54,7 +55,7 @@ module LabelledFormHelper
     # [+options+]     HTML attributes
     def label(method_name, options = {})
       column = object.class.columns_hash[method_name.to_s]
-      %Q@
+      concat %Q@
         <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
           #{column ? column.human_name : method_name.to_s.humanize}
           #{error_messages(method_name)}
@@ -74,6 +75,11 @@ module LabelledFormHelper
     
     def options2attributes(options)
       options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
+    end
+    
+    def concat(text)
+      @template.concat(text, @options[:binding])
+      ''
     end
   end
 end
