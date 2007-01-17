@@ -14,7 +14,7 @@ module LabelledFormHelper
   #   <% end %>
   def labelled_form_for(object_name, object = nil, options = {}, &proc) # :yields: form_builder
     object = instance_variable_get("@#{object_name}") unless object
-    if messages = object.errors.on(:base)
+    if object.respond_to?(:errors) && messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
       concat(%Q@<span class="error_message">#{h(messages)}</span>@, proc.binding)
     end
@@ -54,7 +54,7 @@ module LabelledFormHelper
     # [+method_name+] model object attribute name
     # [+options+]     HTML attributes
     def label(method_name, options = {})
-      column = object.class.columns_hash[method_name.to_s]
+      column = object.class.respond_to?(:columns_hash) && object.class.columns_hash[method_name.to_s]
       concat %Q@
         <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
           #{column ? column.human_name : method_name.to_s.humanize}
@@ -65,7 +65,7 @@ module LabelledFormHelper
 
   private
     def error_messages(method_name)
-      if messages = object.errors.on(method_name)
+      if object.respond_to?(:errors) && messages = object.errors.on(method_name)
         messages = messages.to_sentence if messages.respond_to? :to_sentence
         %Q@<span class="error_message">#{messages}</span>@
       end
