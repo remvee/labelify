@@ -23,17 +23,13 @@ module LabelledFormHelper
   end
 
   # Form build for +form_for+ method which includes labels with almost all form fields.  All
-  # form helper methods are handled and all of them, except for +check_box+,
-  # +radio_button+ and +hidden_field+, are decorated for labels.
-  class LabelledFormBuilder < ActionView::Helpers::FormBuilder
-    %w(text_field password_field file_field text_area select check_box radio_button datetime_select date_select
-                    collection_select country_select time_zone_select).each do |selector|
-      class_eval <<-end_src
-        def #{selector}(method, options = {})
-          concat label(method) +
-              @template.send(#{selector.inspect}, @object_name, method, options.merge(:object => @object))
-        end
-      end_src
+  # unknown method calls are passed through to the underlying template hoping to hit a form helper
+  # method.
+  class LabelledFormBuilder
+    attr_accessor :object_name, :object
+
+    def initialize(object_name, object, template, options, proc)
+      @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc        
     end
     
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
