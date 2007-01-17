@@ -34,8 +34,8 @@ module LabelledFormHelper
     
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
     def method_missing(selector, method, options = {})
-      concat label(method) +
-          @template.send(selector, @object_name, method, options.merge(:object => @object))
+      concat label(method) unless options.delete(:no_label)
+      concat @template.send(selector, @object_name, method, options.merge(:object => @object))
     end
 
     # Returns a submit button.  This button has style class +submit+.
