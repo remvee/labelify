@@ -59,7 +59,7 @@ module LabelledFormHelper
       column = object.class.respond_to?(:columns_hash) && object.class.columns_hash[method_name.to_s]
       concat %Q@
         <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
-          #{column ? column.human_name : method_name.to_s.humanize}
+          <span class="field_name">#{column ? column.human_name : method_name.to_s.humanize}</span>
           #{error_messages(method_name)}
         </label>
       @
