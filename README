@@ -23,12 +23,12 @@ The following:
 yields:
   <form action="/profiel" method="post">  
     <label for="user_description">
-      Description
+      <span class="field_name">Description</span>
       <span class="error_message">can't be blank</span>
     </label>
     <div class="fieldWithErrors"><textarea id="user_description" name="user[description]"></textarea></div>
     <label for="user_password">
-      Password
+      <span class="field_name">Password</span>
     </label>
     <input id="user_password" name="user[password]" value="" type="password"/>
     <input class="submit" value="Store" type="submit"/>
