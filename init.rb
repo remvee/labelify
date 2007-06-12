@@ -1,1 +1,3 @@
-# Include hook code here
+require 'labelled_form_helper'
+
+ActionController::Base.helper LabelledFormHelper
