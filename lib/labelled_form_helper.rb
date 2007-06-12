@@ -12,7 +12,9 @@ module LabelledFormHelper
   #     <%= f.text_area :biography %>
   #     <%= f.check_box :admin %>
   #   <% end %>
-  def labelled_form_for(object_name, object = nil, options = {}, &proc) # :yields: form_builder
+  def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
+    options = args.pop if Hash === args.last
+    object = *args
     object = instance_variable_get("@#{object_name}") unless object
     if object.respond_to?(:errors) && messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
