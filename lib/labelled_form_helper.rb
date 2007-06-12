@@ -48,7 +48,7 @@ module LabelledFormHelper
     # [+value+]   the text on the button
     # [+options+] HTML attributes
     def submit(value = 'Submit', options = {})
-      options = {:type => 'submit', :value => value}.merge(options)
+      options = {:type => 'submit', :value => t(value)}.merge(options)
       if options[:class]
         options[:class] += ' submit'
       else
@@ -65,7 +65,7 @@ module LabelledFormHelper
       column = object.class.respond_to?(:columns_hash) && object.class.columns_hash[method_name.to_s]
       concat %Q@
         <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
-          <span class="field_name">#{column ? column.human_name : method_name.to_s.humanize}</span>
+          <span class="field_name">#{t(column ? column.human_name : method_name.to_s.humanize)}</span>
           #{error_messages(method_name)}
         </label>
       @
@@ -75,7 +75,7 @@ module LabelledFormHelper
     def error_messages(method_name)
       if object.respond_to?(:errors) && messages = object.errors.on(method_name)
         messages = messages.to_sentence if messages.respond_to? :to_sentence
-        %Q@<span class="error_message">#{messages}</span>@
+        %Q@<span class="error_message">#{t(messages)}</span>@
       end
     end
     
@@ -88,6 +88,10 @@ module LabelledFormHelper
     def concat(text)
       @template.concat(text, @options[:binding])
       ''
+    end
+    
+    def t(text)
+      Object.const_defined?(:Localization) ? Localization._(text) : text
     end
   end
 end
