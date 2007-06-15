@@ -71,7 +71,7 @@ module LabelledFormHelper
       @
     end
 
-  private
+    # Error messages for given field, concatenated with +to_sentence+.
     def error_messages(method_name)
       if object.respond_to?(:errors) && messages = object.errors.on(method_name)
         messages = messages.to_sentence if messages.respond_to? :to_sentence
@@ -79,6 +79,7 @@ module LabelledFormHelper
       end
     end
     
+  private
     def h(*args); CGI::escapeHTML(*args); end
     
     def options2attributes(options)
