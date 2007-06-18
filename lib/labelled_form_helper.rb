@@ -39,8 +39,8 @@ module LabelledFormHelper
       args << {} unless args.last.kind_of?(Hash)
       options = args.last
       options.merge!(:object => @object)
-      
-      concat label(method) unless options.delete(:no_label)
+
+      concat label(method, options.include?(:class) ? {:class => options[:class]} : {}) unless options.delete(:no_label)
       concat @template.send(selector, @object_name, method, *args)
     end
 
