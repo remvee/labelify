@@ -35,26 +35,46 @@ module LabelledFormHelper
     end
     
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
+    # Including an option with the name +label+ will have the following effect:
+    # * true => include a label (the default).
+    # * false => exclude the label.
+    # * any other value => the label to use.
     def method_missing(selector, method, *args)
       args << {} unless args.last.kind_of?(Hash)
       options = args.last
       options.merge!(:object => @object)
 
-      concat label(method, options.include?(:class) ? {:class => options[:class]} : {}) unless options.delete(:no_label)
+      label_value = options.delete(:label)
+      if (label_value.nil? || label_value != false) && !options.delete(:no_label)
+        label_options = options.include?(:class) ? {:class => options[:class]} : {}
+        label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
+        concat label(method, label_options)
+      end
+
       concat @template.send(selector, @object_name, method, *args)
     end
 
-    # Returns a submit button.  This button has style class +submit+.
+    # Returns a submit button.  This button has style class +submit+.  If given a +type+ option +button+
+    # a button element will be rendered instead of input element.  This button element will contain a
+    # span element with the given value.
     # [+value+]   the text on the button
     # [+options+] HTML attributes
     def submit(value = 'Submit', options = {})
-      options = {:type => 'submit', :value => t(value)}.merge(options)
       if options[:class]
         options[:class] += ' submit'
       else
         options[:class] = 'submit'
       end
-      concat %Q@<input #{options2attributes(options)}/>@
+
+      if options[:type].to_s == 'button'
+        concat %Q@
+          <button #{options2attributes(options.merge(:type => 'submit'))}>
+            <span>#{h value}</span>
+          </button>
+        @
+      else
+        concat %Q@<input #{options2attributes({:type => 'submit', :value => t(value)}.merge(options))}/>@
+      end
     end
 
     # Returns a label for a given attribute.  The +for+ attribute point to the same
@@ -62,10 +82,11 @@ module LabelledFormHelper
     # [+method_name+] model object attribute name
     # [+options+]     HTML attributes
     def label(method_name, options = {})
+      label_value = options.delete(:label_value)
       column = object.class.respond_to?(:columns_hash) && object.class.columns_hash[method_name.to_s]
       concat %Q@
         <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
-          <span class="field_name">#{t(column ? column.human_name : method_name.to_s.humanize)}</span>
+          <span class="field_name">#{t(label_value ? label_value : column ? column.human_name : method_name.to_s.humanize)}</span>
           #{error_messages(method_name)}
         </label>
       @
@@ -74,8 +95,8 @@ module LabelledFormHelper
     # Error messages for given field, concatenated with +to_sentence+.
     def error_messages(method_name)
       if object.respond_to?(:errors) && messages = object.errors.on(method_name)
-        messages = messages.to_sentence if messages.respond_to? :to_sentence
-        %Q@<span class="error_message">#{t(messages)}</span>@
+        messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
+        %Q@<span class="error_message">#{messages}</span>@
       end
     end
     
