@@ -100,6 +100,15 @@ module LabelledFormHelper
       end
     end
     
+    # Scope a piece of the form to an associated object.
+    def with_association(association) # :yields: 
+      old_object, old_object_name = @object, @object_name
+      @object_name, @object = association, (@object ? @object.send(association) : nil)
+      yield
+    ensure
+      @object, @object_name = old_object, old_object_name
+    end
+    
   private
     def h(*args); CGI::escapeHTML(*args); end
     
