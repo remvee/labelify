@@ -4,18 +4,18 @@ A custom version of +form_for+ which automatically adds labels to the input fiel
 
 == Usage
 
-Use LabelledFormHelper.labelled_form_for like you would use +form_for+.  You don't need to make labels, the LabelledFormHelper::LabelledFormBuilder.label method will do that for you.  Label creation can be suppressed by giving +no_label+ as an option to a field method.  You don't need to use +error_messages_for+ method, errors will be included in the labels and base errors will appear directly after the form tag.
+Use LabelledFormHelper.labelled_form_for like you would use +form_for+.  You don't need to make labels, the LabelledFormHelper::LabelledFormBuilder.label method will do that for you.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.  You don't need to use +error_messages_for+ method, errors will be included in the labels and base errors will appear directly after the form tag.
 
 == Example
 
 The following:
-  <% labelled_form_for :user, @user, :url => {:action => 'profile'} do |f| -%>
+  <% labelled_form_for :user, :url => {:action => 'profile'} do |f| -%>
     <%= f.text_area('description') %>
     <%= f.password_field('password') %>
     <%= f.submit('Store') %>
   <% end -%>
   
-yields:
+on error yields:
   <form action="/profiel" method="post">  
     <label for="user_description">
       <span class="field_name">Description</span>

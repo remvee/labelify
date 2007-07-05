@@ -2,8 +2,9 @@
 module LabelledFormHelper
   # Create a form for a given model object.  Labels and errors are automatically included.
   # The +form_builder+ is a LabelledFormBuilder, which handles all standard form helper
-  # methods.  All the field and select sections are decorated with a label, except for +check_box+,
-  # +radio_button+ and +hidden_field+.
+  # methods.  All the field and select sections are decorated with a label, except for
+  # +hidden_field+.  The +no_label_for+ option can be provide to suppress labels
+  # on other methods as well by giving a string or regex.
   #
   # Example:
   #   <% labelled_form_for :person, @person, :url => { :action => "update" } do |f| %>
@@ -30,25 +31,27 @@ module LabelledFormHelper
   class LabelledFormBuilder
     attr_accessor :object_name, :object
 
-    def initialize(object_name, object, template, options, proc)
+    def initialize(object_name, object, template, options, proc) # :nodoc:
       @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc        
     end
     
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
     # Including an option with the name +label+ will have the following effect:
-    # * true => include a label (the default).
-    # * false => exclude the label.
-    # * any other value => the label to use.
+    # [+true+]           include a label (the default).
+    # [+false+]          exclude the label.
+    # [any other value]  the label to use.
     def method_missing(selector, method, *args)
       args << {} unless args.last.kind_of?(Hash)
       options = args.last
       options.merge!(:object => @object)
 
-      label_value = options.delete(:label)
-      if (label_value.nil? || label_value != false) && !options.delete(:no_label)
-        label_options = options.include?(:class) ? {:class => options[:class]} : {}
-        label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
-        concat label(method, label_options)
+      unless selector == :hidden_field || @options[:no_label_for] && @options[:no_label_for] === selector.to_s
+        label_value = options.delete(:label)
+        if (label_value.nil? || label_value != false) && !options.delete(:no_label)
+          label_options = options.include?(:class) ? {:class => options[:class]} : {}
+          label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
+          concat label(method, label_options)
+        end
       end
 
       concat @template.send(selector, @object_name, method, *args)
@@ -101,13 +104,19 @@ module LabelledFormHelper
     end
     
     # Scope a piece of the form to an associated object.
-    def with_association(association) # :yields: 
+    def with_association(association, &proc) # :yields:
+      with_object(association, @object ? @object.send(association) : nil, &proc)
+    end
+    
+    # Scope a piece of the form to another object.
+    def with_object(object_name, object = nil)
+      object ||= instance_variable_get("@#{object_name}")
       old_object, old_object_name = @object, @object_name
-      @object_name, @object = association, (@object ? @object.send(association) : nil)
-      yield
+      @object_name, @object = object_name, object
+      yield self
     ensure
       @object, @object_name = old_object, old_object_name
-    end
+    end      
     
   private
     def h(*args); CGI::escapeHTML(*args); end
