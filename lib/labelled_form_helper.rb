@@ -44,17 +44,18 @@ module LabelledFormHelper
       args << {} unless args.last.kind_of?(Hash)
       options = args.last
       options.merge!(:object => @object)
+      r = ''
 
       unless selector == :hidden_field || @options[:no_label_for] && @options[:no_label_for] === selector.to_s
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
           label_options = options.include?(:class) ? {:class => options[:class]} : {}
           label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
-          concat label(method, label_options)
+          r << label(method, label_options)
         end
       end
 
-      concat @template.send(selector, @object_name, method, *args)
+      r << @template.send(selector, @object_name, method, *args)
     end
 
     # Returns a submit button.  This button has style class +submit+.  If given a +type+ option +button+
@@ -70,13 +71,13 @@ module LabelledFormHelper
       end
 
       if options[:type].to_s == 'button'
-        concat %Q@
+        %Q@
           <button #{options2attributes(options.merge(:type => 'submit'))}>
             <span>#{h value}</span>
           </button>
         @
       else
-        concat %Q@<input #{options2attributes({:type => 'submit', :value => t(value)}.merge(options))}/>@
+        %Q@<input #{options2attributes({:type => 'submit', :value => t(value)}.merge(options))}/>@
       end
     end
 
@@ -87,7 +88,7 @@ module LabelledFormHelper
     def label(method_name, options = {})
       label_value = options.delete(:label_value)
       column = object.class.respond_to?(:columns_hash) && object.class.columns_hash[method_name.to_s]
-      concat %Q@
+      %Q@
         <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
           <span class="field_name">#{t(label_value ? label_value : column ? column.human_name : method_name.to_s.humanize)}</span>
           #{error_messages(method_name)}
@@ -123,11 +124,6 @@ module LabelledFormHelper
     
     def options2attributes(options)
       options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
-    end
-    
-    def concat(text)
-      @template.concat(text, @options[:binding])
-      ''
     end
     
     def t(text)
