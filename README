@@ -2,9 +2,11 @@
 
 A custom version of +form_for+ which automatically adds labels to the input fields and places error messages, if they exists for that field, next to the label.
 
+
 == Usage
 
 Use LabelledFormHelper.labelled_form_for like you would use +form_for+.  You don't need to make labels, the LabelledFormHelper::LabelledFormBuilder.label method will do that for you.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.  You don't need to use +error_messages_for+ method, errors will be included in the labels and base errors will appear directly after the form tag.
+
 
 == Example
 
@@ -29,8 +31,10 @@ on error yields:
     <input class="submit" value="Store" type="submit"/>
   </form>
   
+
 == Author
 R.W. van 't Veer
+
 
 == Copyright
 Copyright (c) 2006 R.W. van 't Veer
