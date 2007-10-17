@@ -14,14 +14,16 @@ module LabelledFormHelper
   #     <%= f.check_box :admin %>
   #   <% end %>
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
-    options = args.pop if Hash === args.last
+    options = Hash === args.last ? args.pop : {}
+    options = options.merge(:binding => proc.binding, :builder => LabelledFormBuilder)
+
     object = *args
     object = instance_variable_get("@#{object_name}") unless object
     if object.respond_to?(:errors) && messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
       concat(%Q@<span class="error_message">#{h(messages)}</span>@, proc.binding)
     end
-    options = options.merge(:binding => proc.binding, :builder => LabelledFormBuilder)
+
     form_for(object_name, object, options, &proc)
   end
 
@@ -44,7 +46,7 @@ module LabelledFormHelper
       options.merge!(:object => @object)
       r = ''
 
-      unless selector == :hidden_field || @options[:no_label_for] && @options[:no_label_for] === selector.to_s
+      unless selector == :hidden_field || @options[:no_label_for] && @options[:no_label_for] == selector
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
           label_options = options.include?(:class) ? {:class => options[:class]} : {}
@@ -84,11 +86,13 @@ module LabelledFormHelper
     # [+method_name+] model object attribute name
     # [+options+]     HTML attributes
     def label(method_name, options = {})
-      label_value = options.delete(:label_value)
       column = @object.class.respond_to?(:columns_hash) && @object.class.columns_hash[method_name.to_s]
+      
+      label_value = options.delete(:label_value)      
+      label_value ||= column ? column.human_name : method_name.to_s.humanize
       %Q@
         <label for="#{@object_name}_#{method_name}" #{options2attributes(options)}>
-          <span class="field_name">#{t(label_value ? label_value : column ? column.human_name : method_name.to_s.humanize)}</span>
+          <span class="field_name">#{t label_value}</span>
           #{error_messages(method_name)}
         </label>
       @
