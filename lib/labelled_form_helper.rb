@@ -40,7 +40,7 @@ module LabelledFormHelper
     # [+true+]           include a label (the default).
     # [+false+]          exclude the label.
     # [any other value]  the label to use.
-    def method_missing(selector, method, *args)
+    def method_missing(selector, method, *args, &block)
       args << {} unless args.last.kind_of?(Hash)
       options = args.last
       options.merge!(:object => @object)
@@ -55,7 +55,7 @@ module LabelledFormHelper
         end
       end
 
-      r << @template.send(selector, @object_name, method, *args)
+      r << @template.send(selector, @object_name, method, *args, &block)
     end
 
     # Returns a submit button.  This button has style class +submit+.  If given a +type+ option +button+

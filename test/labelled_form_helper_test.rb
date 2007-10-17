@@ -19,28 +19,28 @@ class LabelledFormHelperTest < Test::Unit::TestCase
   include ActionController::Assertions::SelectorAssertions
   
   def setup
-    @person = flexmock(:name => 'Tester')
+    @person = flexmock('person', :name => 'Tester')
     
     @error_on_name = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(nil)
       mock.should_receive(:on).with(:name).and_return(['name error'])
     end
-    @person_with_error_on_name = flexmock(:name => '', :errors => @error_on_name)
+    @person_with_error_on_name = flexmock('person_with_error_on_name', :name => '', :errors => @error_on_name)
     
     @error_on_base = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(['base error'])
       mock.should_receive(:on).with(:name).and_return(nil)
     end
-    @person_with_error_on_base = flexmock(:name => '', :errors => @error_on_base)
+    @person_with_error_on_base = flexmock('person_with_error_on_base', :name => '', :errors => @error_on_base)
 
-    @person_with_human_field_name = flexmock(
+    @person_with_human_field_name = flexmock('person_with_human_field_name',
       :name => '', :class => flexmock(
         :columns_hash => {"name" => flexmock(:human_name => 'human name')}
       )
     )
     
-    @address = flexmock(:city => 'Amsterdam')
-    @person_with_address = flexmock(:name => 'Tester', :address => @address)
+    @address = flexmock('address', :city => 'Amsterdam')
+    @person_with_address = flexmock('person_with_address', :name => 'Tester', :address => @address)
     
     @erbout = ''
   end
@@ -199,8 +199,22 @@ class LabelledFormHelperTest < Test::Unit::TestCase
     assert_select 'label[for="address_city"]', 1
     assert_equal @address.city, css_select('input[type="text"]').first['value']
   end
+  
+  def test_should_allow_helpers_with_block
+    labelled_form_for(:person, @person) do |f|
+      @erbout << f.make_span_for_block(:name) do
+        'body'
+      end
+    end
     
+    assert_select 'form span.span_for_block', 'body'
+  end
+  
 private
+  def make_span_for_block(object, name, options = {})
+    content_tag(:span, yield, :class => 'span_for_block')
+  end
+  
   def url_for(arg)
     arg.empty? ? nil : arg
   end
