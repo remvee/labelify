@@ -29,8 +29,6 @@ module LabelledFormHelper
   # unknown method calls are passed through to the underlying template hoping to hit a form helper
   # method.
   class LabelledFormBuilder
-    attr_accessor :object_name, :object
-
     def initialize(object_name, object, template, options, proc) # :nodoc:
       @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc        
     end
@@ -87,9 +85,9 @@ module LabelledFormHelper
     # [+options+]     HTML attributes
     def label(method_name, options = {})
       label_value = options.delete(:label_value)
-      column = object.class.respond_to?(:columns_hash) && object.class.columns_hash[method_name.to_s]
+      column = @object.class.respond_to?(:columns_hash) && @object.class.columns_hash[method_name.to_s]
       %Q@
-        <label for="#{object_name}_#{method_name}" #{options2attributes(options)}>
+        <label for="#{@object_name}_#{method_name}" #{options2attributes(options)}>
           <span class="field_name">#{t(label_value ? label_value : column ? column.human_name : method_name.to_s.humanize)}</span>
           #{error_messages(method_name)}
         </label>
@@ -98,7 +96,7 @@ module LabelledFormHelper
 
     # Error messages for given field, concatenated with +to_sentence+.
     def error_messages(method_name)
-      if object.respond_to?(:errors) && messages = object.errors.on(method_name)
+      if @object.respond_to?(:errors) && messages = @object.errors.on(method_name)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
         %Q@<span class="error_message">#{messages}</span>@
       end
@@ -111,7 +109,7 @@ module LabelledFormHelper
     
     # Scope a piece of the form to another object.
     def with_object(object_name, object = nil)
-      object ||= instance_variable_get("@#{object_name}")
+      object ||= eval("@#{object_name}", @options[:binding])
       old_object, old_object_name = @object, @object_name
       @object_name, @object = object_name, object
       yield self
