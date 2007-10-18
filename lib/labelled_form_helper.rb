@@ -19,7 +19,8 @@ module LabelledFormHelper
 
     object = *args
     object = instance_variable_get("@#{object_name}") unless object
-    if object.respond_to?(:errors) && messages = object.errors.on(:base)
+    if object.respond_to?(:errors) && object.errors.on(:base)
+      messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
       concat(%Q@<span class="error_message">#{h(messages)}</span>@, proc.binding)
     end
@@ -100,7 +101,8 @@ module LabelledFormHelper
 
     # Error messages for given field, concatenated with +to_sentence+.
     def error_messages(method_name)
-      if @object.respond_to?(:errors) && messages = @object.errors.on(method_name)
+      if @object.respond_to?(:errors) && @object.errors.on(method_name)
+        messages = @object.errors.on(method_name)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
         %Q@<span class="error_message">#{messages}</span>@
       end

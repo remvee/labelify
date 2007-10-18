@@ -26,6 +26,12 @@ class LabelledFormHelperTest < Test::Unit::TestCase
       mock.should_receive(:on).with(:name).and_return(['name error'])
     end
     @person_with_error_on_name = flexmock('person_with_error_on_name', :name => '', :errors => @error_on_name)
+
+    @multiple_errors_on_name = flexmock do |mock|
+      mock.should_receive(:on).with(:base).and_return(nil)
+      mock.should_receive(:on).with(:name).and_return(['error1', 'error2'])
+    end
+    @person_with_multiple_errors_on_name = flexmock('person_with_multiple_errors_on_name', :name => '', :errors => @multiple_errors_on_name)
     
     @error_on_base = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(['base error'])
@@ -167,7 +173,15 @@ class LabelledFormHelperTest < Test::Unit::TestCase
       @erbout << f.text_field(:name)
     end
 
-    assert_select 'label[for="person_name"] .error_message', 1, 'name error'
+    assert_select 'label[for="person_name"] .error_message', 'name error'
+  end
+  
+  def test_should_render_multiple_errors_messages_for_name
+    labelled_form_for(:person, @person_with_multiple_errors_on_name) do |f|
+      @erbout << f.text_field(:name)
+    end
+
+    assert_select 'label[for="person_name"] .error_message', 'error1 and error2'
   end
   
   def test_should_render_error_message_for_base
@@ -175,7 +189,7 @@ class LabelledFormHelperTest < Test::Unit::TestCase
       @erbout << f.text_field(:name)
     end
 
-    assert_select '.error_message', 1, 'base error'
+    assert_select '.error_message', 'base error'
   end
 
   def test_should_render_associate_fields
@@ -220,6 +234,7 @@ private
   end
   
   def concat(text, binding)
+    raise unless binding
     @erbout << text
   end
   
