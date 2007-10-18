@@ -15,7 +15,7 @@ module LabelledFormHelper
   #   <% end %>
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     options = Hash === args.last ? args.pop : {}
-    options = options.merge(:binding => proc.binding, :builder => LabelledFormBuilder)
+    options = options.merge(:builder => LabelledFormBuilder)
 
     object = *args
     object = instance_variable_get("@#{object_name}") unless object
@@ -115,7 +115,7 @@ module LabelledFormHelper
     
     # Scope a piece of the form to another object.
     def with_object(object_name, object = nil)
-      object ||= eval("@#{object_name}", @options[:binding])
+      object ||= instance_variable_get("@#{object_name}")
       old_object, old_object_name = @object, @object_name
       @object_name, @object = object_name, object
       yield self
