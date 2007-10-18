@@ -27,11 +27,11 @@ class LabelledFormHelperTest < Test::Unit::TestCase
     end
     @person_with_error_on_name = flexmock('person_with_error_on_name', :name => '', :errors => @error_on_name)
 
-    @multiple_errors_on_name = flexmock do |mock|
-      mock.should_receive(:on).with(:base).and_return(nil)
-      mock.should_receive(:on).with(:name).and_return(['error1', 'error2'])
+    @multiple_errors_on_name_and_base = flexmock do |mock|
+      mock.should_receive(:on).with(:base).and_return(['base error1', 'base error2'])
+      mock.should_receive(:on).with(:name).and_return(['name error1', 'name error2'])
     end
-    @person_with_multiple_errors_on_name = flexmock('person_with_multiple_errors_on_name', :name => '', :errors => @multiple_errors_on_name)
+    @person_with_multiple_errors_on_name_and_base = flexmock('person_with_multiple_errors_on_name_and_base', :name => '', :errors => @multiple_errors_on_name_and_base)
     
     @error_on_base = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(['base error'])
@@ -176,16 +176,17 @@ class LabelledFormHelperTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] .error_message', 'name error'
   end
   
-  def test_should_render_multiple_errors_messages_for_name
-    labelled_form_for(:person, @person_with_multiple_errors_on_name) do |f|
+  def test_should_render_multiple_errors_messages
+    labelled_form_for(:person, @person_with_multiple_errors_on_name_and_base) do |f|
       @erbout << f.text_field(:name)
     end
 
-    assert_select 'label[for="person_name"] .error_message', 'error1 and error2'
+    assert_select '.error_message', 'base error1 and base error2'
+    assert_select 'label[for="person_name"] .error_message', 'name error1 and name error2'
   end
   
   def test_should_render_error_message_for_base
-    labelled_form_for(:person, @person_with_error_on_base) do |f|
+    labelled_form_for(:person_with_error_on_base) do |f|
       @erbout << f.text_field(:name)
     end
 
