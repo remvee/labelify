@@ -225,9 +225,23 @@ class LabelledFormHelperTest < Test::Unit::TestCase
     assert_select 'form span.span_for_block', 'body'
   end
   
+  def test_should_allow_my_text_field_helper
+    labelled_form_for(:person) do |f|
+      @erbout << f.my_text_field(:name)
+    end
+
+    assert_select 'label[for="person_name"]', 1
+    assert_select 'input[type="my-text"]', 1
+    assert_equal @person.name, css_select('input').first['value']
+  end
+  
 private
   def make_span_for_block(object, name, options = {})
     content_tag(:span, yield, :class => 'span_for_block')
+  end
+  
+  def my_text_field(object, method, options)
+    tag(:input, :value => options[:object].send(method), :type => 'my-text')
   end
   
   def url_for(arg)
