@@ -9,6 +9,11 @@ Use LabelledFormHelper.labelled_form_for like you would use +form_for+.  You don
 
 Unlike +form_for+, +labelled_form_for+ will pass all calls to the template.  The means not only the helpers can be accessed but also home grown fields helpers, as long as they accept the +object_name+, +object_method+, +options+ arguments.
 
+Put the following in your +environment.rb+ to use this form builder by default:
+
+  ActionView::Base.default_form_builder = LabelledFormBuilder
+
+
 == Example
 
 The following:

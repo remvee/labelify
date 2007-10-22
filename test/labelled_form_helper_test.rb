@@ -235,6 +235,22 @@ class LabelledFormHelperTest < Test::Unit::TestCase
     assert_equal @person.name, css_select('input').first['value']
   end
   
+  def test_should_be_able_to_use_as_default_form_builder
+    before = ActionView::Base.default_form_builder
+    ActionView::Base.default_form_builder = LabelledFormBuilder
+    
+    begin
+      form_for(:person) do |f|
+        @erbout << f.text_field(:name)
+      end
+
+      assert_select 'label[for="person_name"]', 1
+      assert_select 'input#person_name', 1
+    end
+    
+    ActionView::Base.default_form_builder = before
+  end
+  
 private
   def make_span_for_block(object, name, options = {})
     content_tag(:span, yield, :class => 'span_for_block')
