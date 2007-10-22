@@ -11,7 +11,7 @@ Error messages for the give field will be included in the labels right after the
 
 Unlike +form_for+, +labelled_form_for+ will pass all calls to the template.  This means not only the field helpers can be accessed but also home grown fields helpers, as long as they accept the +object_name+, +object_method+, +options+ arguments.
 
-To use this builder as the default form builder, use the following:
+The Labelify helper methods are automatically included.  To use this builder as the default form builder, use the following:
 
   ActionView::Base.default_form_builder = Labelify::FormBuilder
 
