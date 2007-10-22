@@ -5,11 +5,11 @@ A form builder plugin for +form_for+ and family which automatically adds labels 
 
 == Usage
 
-Use Labelify.labelify_form_for like you would use +form_for+.  You don't need to make labels, they will be inserted for you automatically.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.
+Use Labelify.labelled_form_for like you would use +form_for+.  You don't need to make labels, they will be inserted for you automatically.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.
 
 Error messages for the give field will be included in the labels right after the field name.  Base errors will appear directly before the form tag.
 
-Unlike +form_for+, +labelify_form_for+ will pass all calls to the template.  This means not only the field helpers can be accessed but also home grown fields helpers, as long as they accept the +object_name+, +object_method+, +options+ arguments.
+Unlike +form_for+, +labelled_form_for+ will pass all calls to the template.  This means not only the field helpers can be accessed but also home grown fields helpers, as long as they accept the +object_name+, +object_method+, +options+ arguments.
 
 To use this builder as the default form builder, use the following:
 
@@ -19,7 +19,7 @@ To use this builder as the default form builder, use the following:
 == Example
 
 This form:
-  <% labelify_form_for :user, :url => {:action => 'profile'} do |f| -%>
+  <% labelled_form_for :user, :url => {:action => 'profile'} do |f| -%>
     <%= f.text_area('description') %>
     <%= f.password_field('password') %>
     <%= f.submit('Store') %>

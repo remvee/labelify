@@ -1,4 +1,4 @@
-# Helper module for making labeled form.
+# Helper module for making labeled forms.
 module Labelify
   # Create a form for a given model object.  Labels and errors are
   # automatically included.  The +form_builder+ handles all standard
@@ -8,13 +8,13 @@ module Labelify
   # methods as well by giving a string or regex.
   #
   # Example:
-  #   <% labelify_form_for :person, @person, :url => { :action => "update" } do |f| %>
+  #   <% labelled_form_for :person, @person, :url => { :action => "update" } do |f| %>
   #     <%= f.text_field :first_name %>
   #     <%= f.text_field :last_name %>
   #     <%= f.text_area :biography %>
   #     <%= f.check_box :admin %>
   #   <% end %>
-  def labelify_form_for(object_name, *args, &proc) # :yields: form_builder
+  def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     options = Hash === args.last ? args.pop : {}
     options = options.merge(:builder => FormBuilder)
 

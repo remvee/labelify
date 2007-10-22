@@ -52,22 +52,22 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_empty_form
-    labelify_form_for(:person) {}
+    labelled_form_for(:person) {}
     assert_equal %q{<form method="post"></form>}, @erbout
   end
   
   def test_should_render_form_with_method_get
-    labelify_form_for(:person, :html => {:method => 'get'}) {}
+    labelled_form_for(:person, :html => {:method => 'get'}) {}
     assert_equal %q{<form method="get"></form>}, @erbout
   end
   
   def test_should_render_form_with_url
-    labelify_form_for(:person, :url => 'test_url') {}
+    labelled_form_for(:person, :url => 'test_url') {}
     assert_select 'form[method="post"][action="test_url"]'
   end
   
   def test_should_render_form_with_name_field
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name)
     end
     
@@ -80,7 +80,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_not_render_label_with_false
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :label => false)
     end
     
@@ -88,7 +88,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_not_render_label_with_no_label
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :no_label => true)
     end
     
@@ -96,7 +96,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_not_render_label_with_no_label_for
-    labelify_form_for(:person, :no_label_for => :text_field) do |f|
+    labelled_form_for(:person, :no_label_for => :text_field) do |f|
       @erbout << f.text_field(:name)
     end
     
@@ -104,7 +104,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_alternative_label
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :label => 'alt')
     end
     
@@ -112,7 +112,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_class_for_field
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :class => 'required')
     end
     
@@ -120,7 +120,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_input_submit_with_class_submit
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.submit('save', :class => 'button')
     end
     
@@ -129,7 +129,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_button_of_type_submit
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.submit('save', :type => :button, :class => 'save-button')
     end
     
@@ -137,7 +137,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_label
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.label(:name) 
     end
     
@@ -145,7 +145,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_label_with_value
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.label(:name, :label_value => 'test label')
     end
     
@@ -153,7 +153,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_label_with_human_name
-    labelify_form_for(:person, @person_with_human_field_name) do |f|
+    labelled_form_for(:person, @person_with_human_field_name) do |f|
       @erbout << f.label(:name)
     end
 
@@ -161,7 +161,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_not_render_error_message
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name)
     end
 
@@ -169,7 +169,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_error_message_for_name
-    labelify_form_for(:person, @person_with_error_on_name) do |f|
+    labelled_form_for(:person, @person_with_error_on_name) do |f|
       @erbout << f.text_field(:name)
     end
 
@@ -177,7 +177,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_multiple_errors_messages
-    labelify_form_for(:person, @person_with_multiple_errors_on_name_and_base) do |f|
+    labelled_form_for(:person, @person_with_multiple_errors_on_name_and_base) do |f|
       @erbout << f.text_field(:name)
     end
 
@@ -186,7 +186,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_error_message_for_base
-    labelify_form_for(:person_with_error_on_base) do |f|
+    labelled_form_for(:person_with_error_on_base) do |f|
       @erbout << f.text_field(:name)
     end
 
@@ -194,7 +194,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
 
   def test_should_render_associate_fields
-    labelify_form_for(:person, @person_with_address) do |f|
+    labelled_form_for(:person, @person_with_address) do |f|
       f.with_association(:address) do |a|
         @erbout << a.text_field(:city)
       end
@@ -205,7 +205,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_render_object_fields
-    labelify_form_for(:person, @person_with_address) do |f|
+    labelled_form_for(:person, @person_with_address) do |f|
       f.with_object(:address) do |a|
         @erbout << a.text_field(:city)
       end
@@ -216,7 +216,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_allow_helpers_with_block
-    labelify_form_for(:person, @person) do |f|
+    labelled_form_for(:person, @person) do |f|
       @erbout << f.make_span_for_block(:name) do
         'body'
       end
@@ -226,7 +226,7 @@ class LabelifyTest < Test::Unit::TestCase
   end
   
   def test_should_allow_my_text_field_helper
-    labelify_form_for(:person) do |f|
+    labelled_form_for(:person) do |f|
       @erbout << f.my_text_field(:name)
     end
 
