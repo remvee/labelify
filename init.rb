@@ -1,3 +1,3 @@
-require 'labelled_form_helper'
+require 'labelify'
 
-ActionController::Base.helper LabelledFormHelper
+ActionController::Base.helper Labelify

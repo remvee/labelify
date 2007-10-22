@@ -1,35 +1,39 @@
-= Labelled Form Helper
+= Labelify
 
-A custom version of +form_for+ which automatically adds labels to the input fields and places error messages, if they exists for that field, next to the label.
+A form builder plugin for +form_for+ and family which automatically adds labels to the input fields and places error messages, if they exists for that field, next to the label.
 
 
 == Usage
 
-Use LabelledFormHelper.labelled_form_for like you would use +form_for+.  You don't need to make labels, the LabelledFormHelper.LabelledFormBuilder#label method will do that for you.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.  You don't need to use +error_messages_for+ method, errors will be included in the labels and base errors will appear directly before the form tag.
+Use Labelify.labelify_form_for like you would use +form_for+.  You don't need to make labels, they will be inserted for you automatically.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.
 
-Unlike +form_for+, +labelled_form_for+ will pass all calls to the template.  The means not only the helpers can be accessed but also home grown fields helpers, as long as they accept the +object_name+, +object_method+, +options+ arguments.
+Error messages for the give field will be included in the labels right after the field name.  Base errors will appear directly before the form tag.
 
-Put the following in your +environment.rb+ to use this form builder by default:
+Unlike +form_for+, +labelify_form_for+ will pass all calls to the template.  This means not only the field helpers can be accessed but also home grown fields helpers, as long as they accept the +object_name+, +object_method+, +options+ arguments.
 
-  ActionView::Base.default_form_builder = LabelledFormBuilder
+To use this builder as the default form builder, use the following:
+
+  ActionView::Base.default_form_builder = Labelify::FormBuilder
 
 
 == Example
 
-The following:
-  <% labelled_form_for :user, :url => {:action => 'profile'} do |f| -%>
+This form:
+  <% labelify_form_for :user, :url => {:action => 'profile'} do |f| -%>
     <%= f.text_area('description') %>
     <%= f.password_field('password') %>
     <%= f.submit('Store') %>
   <% end -%>
-  
-on error yields:
+
+with an error on the +description+ field yields:
   <form action="/profiel" method="post">  
     <label for="user_description">
       <span class="field_name">Description</span>
       <span class="error_message">can't be blank</span>
     </label>
-    <div class="fieldWithErrors"><textarea id="user_description" name="user[description]"></textarea></div>
+    <div class="fieldWithErrors">
+      <textarea id="user_description" name="user[description]"></textarea>
+    </div>
     <label for="user_password">
       <span class="field_name">Password</span>
     </label>
@@ -43,4 +47,4 @@ R.W. van 't Veer
 
 
 == Copyright
-Copyright (c) 2006 R.W. van 't Veer
+Copyright (c) 2007 R.W. van 't Veer

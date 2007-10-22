@@ -1,21 +1,22 @@
-# Helper module for making labelled form.
-module LabelledFormHelper
-  # Create a form for a given model object.  Labels and errors are automatically included.
-  # The +form_builder+ is a LabelledFormBuilder, which handles all standard form helper
-  # methods.  All the field and select sections are decorated with a label, except for
-  # +hidden_field+.  The +no_label_for+ option can be provide to suppress labels
-  # on other methods as well by giving a string or regex.
+# Helper module for making labeled form.
+module Labelify
+  # Create a form for a given model object.  Labels and errors are
+  # automatically included.  The +form_builder+ handles all standard
+  # form helper methods.  All the field and select sections are
+  # decorated with a label, except for +hidden_field+.  The
+  # +no_label_for+ option can be provide to suppress labels on other
+  # methods as well by giving a string or regex.
   #
   # Example:
-  #   <% labelled_form_for :person, @person, :url => { :action => "update" } do |f| %>
+  #   <% labelify_form_for :person, @person, :url => { :action => "update" } do |f| %>
   #     <%= f.text_field :first_name %>
   #     <%= f.text_field :last_name %>
   #     <%= f.text_area :biography %>
   #     <%= f.check_box :admin %>
   #   <% end %>
-  def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
+  def labelify_form_for(object_name, *args, &proc) # :yields: form_builder
     options = Hash === args.last ? args.pop : {}
-    options = options.merge(:builder => LabelledFormBuilder)
+    options = options.merge(:builder => FormBuilder)
 
     object = *args
     object = instance_variable_get("@#{object_name}") unless object
@@ -28,10 +29,10 @@ module LabelledFormHelper
     form_for(object_name, object, options, &proc)
   end
 
-  # Form build for +form_for+ method which includes labels with almost all form fields.  All
-  # unknown method calls are passed through to the underlying template hoping to hit a form helper
-  # method.
-  class LabelledFormBuilder
+  # Form build for +form_for+ method which includes labels with almost
+  # all form fields.  All unknown method calls are passed through to
+  # the underlying template hoping to hit a form helper method.
+  class FormBuilder
     def initialize(object_name, object, template, options, proc) # :nodoc:
       @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc        
     end
