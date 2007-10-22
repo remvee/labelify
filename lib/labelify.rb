@@ -16,7 +16,7 @@ module Labelify
   #   <% end %>
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     options = Hash === args.last ? args.pop : {}
-    options = options.merge(:builder => FormBuilder)
+    options = options.merge(:binding => proc.binding, :builder => FormBuilder)
 
     object = *args
     object = instance_variable_get("@#{object_name}") unless object
@@ -116,7 +116,7 @@ module Labelify
     
     # Scope a piece of the form to another object.
     def with_object(object_name, object = nil)
-      object ||= instance_variable_get("@#{object_name}")
+      object ||= eval("@#{object_name}", @options[:binding])
       old_object, old_object_name = @object, @object_name
       @object_name, @object = object_name, object
       yield self
