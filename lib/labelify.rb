@@ -23,7 +23,7 @@ module Labelify
     if object.respond_to?(:errors) && object.errors.on(:base)
       messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
-      concat(%Q@<span class="error_message">#{h(messages)}</span>@, proc.binding)
+      concat(content_tag(:span, h(messages), :class => 'error_message'), proc.binding)
     end
 
     form_for(object_name, object, options, &proc)
@@ -73,13 +73,9 @@ module Labelify
       end
 
       if options[:type].to_s == 'button'
-        %Q@
-          <button #{options2attributes(options.merge(:type => 'submit'))}>
-            <span>#{h value}</span>
-          </button>
-        @
+        content_tag(:button, content_tag(:span, h(value)), options.merge(:type => 'submit'))
       else
-        %Q@<input #{options2attributes({:type => 'submit', :value => t(value)}.merge(options))}/>@
+        tag(:input, {:type => 'submit', :value => t(value)}.merge(options))
       end
     end
 
@@ -92,12 +88,10 @@ module Labelify
       
       label_value = options.delete(:label_value)      
       label_value ||= column ? column.human_name : method_name.to_s.humanize
-      %Q@
-        <label for="#{@object_name}_#{method_name}" #{options2attributes(options)}>
-          <span class="field_name">#{t label_value}</span>
-          #{error_messages(method_name)}
-        </label>
-      @
+      
+      content_tag(:label,
+        content_tag(:span, t(label_value), :class => 'field_name') + error_messages(method_name).to_s,
+        options.merge(:for => "#{@object_name}_#{method_name}"))
     end
 
     # Error messages for given field, concatenated with +to_sentence+.
@@ -105,7 +99,7 @@ module Labelify
       if @object.respond_to?(:errors) && @object.errors.on(method_name)
         messages = @object.errors.on(method_name)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
-        %Q@<span class="error_message">#{messages}</span>@
+        content_tag(:span, messages, :class => 'error_message')
       end
     end
     
@@ -133,6 +127,14 @@ module Labelify
     
     def t(text)
       Object.const_defined?(:Localization) ? Localization._(text) : text
+    end
+    
+    def tag(*args)
+      @template.send(:tag, *args)
+    end
+    
+    def content_tag(*args)
+      @template.send(:content_tag, *args)
     end
   end
 end
