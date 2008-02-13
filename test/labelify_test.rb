@@ -7,6 +7,7 @@ require 'active_support'
 require 'action_view/helpers/tag_helper'
 require 'action_view/helpers/form_helper'
 require 'action_view/helpers/form_tag_helper'
+require 'action_controller'
 require 'action_controller/assertions/selector_assertions'
 
 require File.dirname(__FILE__) + '/../lib/labelify'
@@ -271,5 +272,9 @@ private
   
   def response_from_page_or_rjs
     HTML::Document.new(@erbout).root
+  end
+  
+  def protect_against_forgery?
+    false
   end
 end

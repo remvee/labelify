@@ -19,7 +19,8 @@ module Labelify
     options = options.merge(:binding => proc.binding, :builder => FormBuilder)
 
     object = *args
-    object = instance_variable_get("@#{object_name}") unless object
+    object ||= instance_variable_get("@#{object_name}") if [String,Symbol].include?(object_name.class)
+    
     if object.respond_to?(:errors) && object.errors.on(:base)
       messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
