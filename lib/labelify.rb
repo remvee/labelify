@@ -35,7 +35,10 @@ module Labelify
   # the underlying template hoping to hit a form helper method.
   class FormBuilder
     def initialize(object_name, object, template, options, proc) # :nodoc:
-      @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc        
+      @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc
+      
+      @options[:no_label_for] &&= [@options[:no_label_for]].flatten
+      @options[:no_label_for] ||= [:hidden_field, :label]
     end
     
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
@@ -48,8 +51,8 @@ module Labelify
       options = args.last
       options.merge!(:object => @object)
       r = ''
-
-      unless selector == :hidden_field || @options[:no_label_for] && @options[:no_label_for] == selector
+      
+      unless @options[:no_label_for].include?(selector)
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
           label_options = options.include?(:class) ? {:class => options[:class]} : {}

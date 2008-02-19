@@ -20,7 +20,7 @@ class LabelifyTest < Test::Unit::TestCase
   include ActionController::Assertions::SelectorAssertions
   
   def setup
-    @person = flexmock('person', :name => 'Tester')
+    @person = flexmock('person', :name => 'Tester', :password => 'Secret', :active => true)
     
     @error_on_name = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(nil)
@@ -80,6 +80,22 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal @person.name, element.first["value"]
   end
   
+  def test_should_not_render_label_for_hidden_field
+    labelled_form_for(:person) do |f|
+      @erbout << f.hidden_field(:name)
+    end
+
+    assert_select 'label[for="person_name"]', 0
+  end
+  
+  def test_should_not_render_extra_label_for_label_method
+    labelled_form_for(:person) do |f|
+      @erbout << f.label(:name)
+    end
+
+    assert_select 'label[for="person_name"]', 1
+  end
+  
   def test_should_not_render_label_with_false
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :label => false)
@@ -96,12 +112,23 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 0
   end
   
-  def test_should_not_render_label_with_no_label_for
+  def test_should_not_render_label_with_single_no_label_for
     labelled_form_for(:person, :no_label_for => :text_field) do |f|
       @erbout << f.text_field(:name)
+      @erbout << f.password_field(:password)
     end
     
-    assert_select 'label[for="person_name"]', 0
+    assert_select 'label', 1
+  end
+  
+  def test_should_not_render_label_with_multi_no_label_for
+    labelled_form_for(:person, :no_label_for => [:text_field, :password_field]) do |f|
+      @erbout << f.text_field(:name)
+      @erbout << f.password_field(:password)
+      @erbout << f.check_box(:active)
+    end
+    
+    assert_select 'label', 1
   end
   
   def test_should_render_alternative_label
