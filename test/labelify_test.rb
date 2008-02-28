@@ -52,22 +52,22 @@ class LabelifyTest < Test::Unit::TestCase
     @erbout = ''
   end
   
-  def test_should_render_empty_form
+  def test_labelled_form_for_should_render_empty_form
     labelled_form_for(:person) {}
     assert_equal %q{<form method="post"></form>}, @erbout
   end
   
-  def test_should_render_form_with_method_get
+  def test_labelled_form_for_should_render_form_with_method_get
     labelled_form_for(:person, :html => {:method => 'get'}) {}
     assert_equal %q{<form method="get"></form>}, @erbout
   end
   
-  def test_should_render_form_with_url
+  def test_labelled_form_for_should_render_form_with_url
     labelled_form_for(:person, :url => 'test_url') {}
     assert_select 'form[method="post"][action="test_url"]'
   end
   
-  def test_should_render_form_with_name_field
+  def test_labelled_form_for_should_render_form_with_name_field
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name)
     end
@@ -80,7 +80,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal @person.name, element.first["value"]
   end
   
-  def test_should_not_render_label_for_hidden_field
+  def test_labelled_form_for_should_not_render_label_for_hidden_field
     labelled_form_for(:person) do |f|
       @erbout << f.hidden_field(:name)
     end
@@ -88,7 +88,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 0
   end
   
-  def test_should_not_render_extra_label_for_label_method
+  def test_labelled_form_for_should_not_render_extra_label_for_label_method
     labelled_form_for(:person) do |f|
       @erbout << f.label(:name)
     end
@@ -96,7 +96,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 1
   end
   
-  def test_should_not_render_label_with_false
+  def test_labelled_form_for_should_not_render_label_with_false
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :label => false)
     end
@@ -104,7 +104,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 0
   end
   
-  def test_should_not_render_label_with_no_label
+  def test_labelled_form_for_should_not_render_label_with_no_label
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :no_label => true)
     end
@@ -112,7 +112,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 0
   end
   
-  def test_should_not_render_label_with_single_no_label_for
+  def test_labelled_form_for_should_not_render_label_with_single_no_label_for
     labelled_form_for(:person, :no_label_for => :text_field) do |f|
       @erbout << f.text_field(:name)
       @erbout << f.password_field(:password)
@@ -121,7 +121,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label', 1
   end
   
-  def test_should_not_render_label_with_multi_no_label_for
+  def test_labelled_form_for_should_not_render_label_with_multi_no_label_for
     labelled_form_for(:person, :no_label_for => [:text_field, :password_field]) do |f|
       @erbout << f.text_field(:name)
       @erbout << f.password_field(:password)
@@ -131,7 +131,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label', 1
   end
   
-  def test_should_render_alternative_label
+  def test_labelled_form_for_should_render_alternative_label
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :label => 'alt')
     end
@@ -139,7 +139,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 'alt'
   end
   
-  def test_should_render_class_for_field
+  def test_labelled_form_for_should_render_class_for_field
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :class => 'required')
     end
@@ -147,7 +147,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'input#person_name.required'
   end
   
-  def test_should_render_input_submit_with_class_submit
+  def test_labelled_form_for_should_render_input_submit_with_class_submit
     labelled_form_for(:person) do |f|
       @erbout << f.submit('save', :class => 'button')
     end
@@ -156,7 +156,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal 'save', css_select('input[type="submit"].submit.button').first["value"]
   end
   
-  def test_should_render_button_of_type_submit
+  def test_labelled_form_for_should_render_button_of_type_submit
     labelled_form_for(:person) do |f|
       @erbout << f.submit('save', :type => :button, :class => 'save-button')
     end
@@ -164,7 +164,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'button[type="submit"].submit.save-button', 'save'
   end
   
-  def test_should_render_label
+  def test_labelled_form_for_should_render_label
     labelled_form_for(:person) do |f|
       @erbout << f.label(:name) 
     end
@@ -172,7 +172,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] span.field_name', 'Name'
   end
   
-  def test_should_render_label_with_value
+  def test_labelled_form_for_should_render_label_with_value
     labelled_form_for(:person) do |f|
       @erbout << f.label(:name, :label_value => 'test label')
     end
@@ -180,7 +180,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] span.field_name', 'test label'
   end
   
-  def test_should_render_label_with_human_name
+  def test_labelled_form_for_should_render_label_with_human_name
     labelled_form_for(:person, @person_with_human_field_name) do |f|
       @erbout << f.label(:name)
     end
@@ -188,7 +188,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] span.field_name', 'human name'
   end
   
-  def test_should_not_render_error_message
+  def test_labelled_form_for_should_not_render_error_message
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name)
     end
@@ -196,7 +196,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] .error_message', 0
   end
   
-  def test_should_render_error_message_for_name
+  def test_labelled_form_for_should_render_error_message_for_name
     labelled_form_for(:person, @person_with_error_on_name) do |f|
       @erbout << f.text_field(:name)
     end
@@ -204,7 +204,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] .error_message', 'name error'
   end
   
-  def test_should_render_multiple_errors_messages
+  def test_labelled_form_for_should_render_multiple_errors_messages
     labelled_form_for(:person, @person_with_multiple_errors_on_name_and_base) do |f|
       @erbout << f.text_field(:name)
     end
@@ -213,7 +213,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"] .error_message', 'name error1 and name error2'
   end
   
-  def test_should_render_error_message_for_base
+  def test_labelled_form_for_should_render_error_message_for_base
     labelled_form_for(:person_with_error_on_base) do |f|
       @erbout << f.text_field(:name)
     end
@@ -221,7 +221,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select '.error_message', 'base error'
   end
 
-  def test_should_render_associate_fields
+  def test_labelled_form_for_should_render_associate_fields
     labelled_form_for(:person, @person_with_address) do |f|
       f.with_association(:address) do |a|
         @erbout << a.text_field(:city)
@@ -232,7 +232,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal @address.city, css_select('input[type="text"]').first['value']
   end
   
-  def test_should_render_object_fields
+  def test_labelled_form_for_should_render_object_fields
     labelled_form_for(:person, @person_with_address) do |f|
       f.with_object(:address) do |a|
         @erbout << a.text_field(:city)
@@ -243,7 +243,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal @address.city, css_select('input[type="text"]').first['value']
   end
   
-  def test_should_allow_helpers_with_block
+  def test_labelled_form_for_should_allow_helpers_with_block
     labelled_form_for(:person, @person) do |f|
       @erbout << f.make_span_for_block(:name) do
         'body'
@@ -253,7 +253,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'form span.span_for_block', 'body'
   end
   
-  def test_should_allow_my_text_field_helper
+  def test_labelled_form_for_should_allow_my_text_field_helper
     labelled_form_for(:person) do |f|
       @erbout << f.my_text_field(:name)
     end
@@ -263,7 +263,7 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal @person.name, css_select('input').first['value']
   end
   
-  def test_should_be_able_to_use_as_default_form_builder
+  def test_labelled_form_for_should_be_able_to_use_as_default_form_builder
     before = ActionView::Base.default_form_builder
     ActionView::Base.default_form_builder = Labelify::FormBuilder
     
@@ -277,6 +277,19 @@ class LabelifyTest < Test::Unit::TestCase
     end
     
     ActionView::Base.default_form_builder = before
+  end
+
+  def test_labelled_fields_for_should_render_nothing
+    labelled_fields_for(:person) {}
+    assert_equal '', @erbout
+  end
+  
+  def test_labelled_fields_for_should_render_text_field
+    labelled_fields_for(:person) do |f|
+      @erbout << f.text_field(:name)
+    end
+    assert_select 'label[for="person_name"]', 1
+    assert_select 'input#person_name', 1
   end
   
 private

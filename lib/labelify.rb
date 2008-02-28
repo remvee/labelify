@@ -15,21 +15,37 @@ module Labelify
   #     <%= f.check_box :admin %>
   #   <% end %>
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
+    object, options = collect_arguments(object_name, *args, &proc)
+    render_base_errors(object, &proc)
+    form_for(object_name, object, options, &proc)
+  end
+  
+  # Create a scope around a model object like +form_for+ but without rendering +form+ tags.
+  def labelled_fields_for(object_name, *args, &proc) # :yields: form_builder
+    object, options = collect_arguments(object_name, *args, &proc)
+    render_base_errors(object, &proc)
+    fields_for(object_name, object, options, &proc)
+  end
+
+private
+  def collect_arguments(object_name, *args, &proc)
     options = Hash === args.last ? args.pop : {}
     options = options.merge(:binding => proc.binding, :builder => FormBuilder)
 
     object = *args
     object ||= instance_variable_get("@#{object_name}") if [String,Symbol].include?(object_name.class)
     
+    [object, options]
+  end
+  
+  def render_base_errors(object, &proc)
     if object.respond_to?(:errors) && object.errors.on(:base)
       messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
       concat(content_tag(:span, h(messages), :class => 'error_message'), proc.binding)
     end
-
-    form_for(object_name, object, options, &proc)
   end
-
+  
   # Form build for +form_for+ method which includes labels with almost
   # all form fields.  All unknown method calls are passed through to
   # the underlying template hoping to hit a form helper method.
