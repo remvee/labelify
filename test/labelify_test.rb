@@ -20,7 +20,7 @@ class LabelifyTest < Test::Unit::TestCase
   include ActionController::Assertions::SelectorAssertions
   
   def setup
-    @person = flexmock('person', :name => 'Tester', :password => 'Secret', :active => true)
+    @person = flexmock('person', :name => 'Tester', :password => 'Secret', :active => true, :to_param => 1)
     
     @error_on_name = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(nil)
@@ -290,6 +290,22 @@ class LabelifyTest < Test::Unit::TestCase
     end
     assert_select 'label[for="person_name"]', 1
     assert_select 'input#person_name', 1
+  end
+  
+  def test_labelled_fields_should_allow_indexed_fields
+    labelled_fields_for('person[]') do |f|
+      @erbout << f.text_field(:name)
+    end
+    assert_select 'label[for="person_1_name"]', 1
+    assert_select 'input#person_1_name', 1
+  end
+  
+  def test_labelled_fields_should_allow_indexed_fields_with_given_object
+    labelled_fields_for('p[]', @person) do |f|
+      @erbout << f.text_field(:name)
+    end
+    assert_select 'label[for="p_1_name"]', 1
+    assert_select 'input#p_1_name', 1
   end
   
 private

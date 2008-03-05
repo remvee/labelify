@@ -33,7 +33,9 @@ private
     options = options.merge(:binding => proc.binding, :builder => FormBuilder)
 
     object = *args
-    object ||= instance_variable_get("@#{object_name}") if [String,Symbol].include?(object_name.class)
+    if [String,Symbol].include?(object_name.class)
+      object ||= instance_variable_get("@#{object_name.to_s.sub(/\[\]$/, '')}")
+    end
     
     [object, options]
   end
@@ -109,9 +111,10 @@ private
       label_value = options.delete(:label_value)      
       label_value ||= column ? column.human_name : method_name.to_s.humanize
       
-      content_tag(:label,
+      @template.label(@object_name, method_name,
         content_tag(:span, t(label_value), :class => 'field_name') + error_messages(method_name).to_s,
-        options.merge(:for => "#{@object_name}_#{method_name}"))
+        options.merge(:object => @object)
+      )
     end
 
     # Error messages for given field, concatenated with +to_sentence+.
