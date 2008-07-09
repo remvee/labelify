@@ -307,6 +307,37 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="p_1_name"]', 1
     assert_select 'input#p_1_name', 1
   end
+
+  def test_label_method_should_fallback_to_rails_implementation
+    labelled_fields_for(:person) do |f|
+      @erbout << f.label(:name, 'Naam')
+    end
+
+    assert_select 'label[for="person_name"] span.field_name', 'Naam'
+  end
+
+  def test_error_placement_should_put_error_on_proper_location
+    {
+      :after_field  => 'input + span.error_message',
+      :before_field => 'span.error_message + input',
+      :after_label  => 'label + span.error_message',
+      :before_label => 'span.error_message + label',
+    }.each do |placement, selector|
+      @erbout = ''
+      labelled_form_for(:person, @person_with_error_on_name, :error_placement => placement) do |f|
+        @erbout << f.text_field(:name)
+      end
+      assert_select selector
+      assert_select 'label span.error_message', false
+
+      @erbout = ''
+      labelled_form_for(:person, @person_with_error_on_name) do |f|
+        @erbout << f.text_field(:name, :error_placement => placement)
+      end
+      assert_select selector
+      assert_select 'label span.error_message', false
+    end
+  end
   
 private
   def make_span_for_block(object, name, options = {})
