@@ -14,7 +14,7 @@ module Labelify
   #     <%= f.text_area :biography %>
   #     <%= f.check_box :admin %>
   #   <% end %>
-  # 
+  #
   # Options:
   # [<code>:error_placement</code>]  one of <code>:before_field</code>, <code>:after_field</code>, <code>:before_label</code>, <code>:after_label</code> and defaults to <code>:inside_label</code>
   # [<code>:no_label_for</code>]     an array of method names not to render a label for
@@ -23,7 +23,7 @@ module Labelify
     render_base_errors(object, &proc)
     form_for(object_name, object, options, &proc)
   end
-  
+
   # Create a scope around a model object like +form_for+ but without rendering +form+ tags.
   def labelled_fields_for(object_name, *args, &proc) # :yields: form_builder
     object, options = collect_arguments(object_name, *args, &proc)
@@ -40,10 +40,10 @@ private
     if [String,Symbol].include?(object_name.class)
       object ||= instance_variable_get("@#{object_name.to_s.sub(/\[\]$/, '')}")
     end
-    
+
     [object, options]
   end
-  
+
   def render_base_errors(object, &proc)
     if object.respond_to?(:errors) && object.errors.on(:base)
       messages = object.errors.on(:base)
@@ -51,18 +51,18 @@ private
       concat(content_tag(:span, h(messages), :class => 'error_message'), proc.binding)
     end
   end
-  
+
   # Form build for +form_for+ method which includes labels with almost
   # all form fields.  All unknown method calls are passed through to
   # the underlying template hoping to hit a form helper method.
   class FormBuilder
     def initialize(object_name, object, template, options, proc) # :nodoc:
       @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc
-      
+
       @options[:no_label_for] &&= [*@options[:no_label_for]]
       @options[:no_label_for] ||= [:hidden_field, :label]
     end
-    
+
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
     # Including an option with the name +label+ will have the following effect:
     # [+true+]           include a label (the default).
@@ -75,7 +75,7 @@ private
 
       r = ''
       error_placement = options.merge(@options)[:error_placement]
-      
+
       unless @options[:no_label_for].include?(selector)
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
@@ -118,12 +118,12 @@ private
     def label(method_name, *args)
       options = Hash === args.last ? args.pop : {}
       column = @object.class.respond_to?(:columns_hash) && @object.class.columns_hash[method_name.to_s]
-      
-      label_value = options.delete(:label_value)      
+
+      label_value = options.delete(:label_value)
       label_value ||= String === args.first && args.shift
       label_value ||= column ? column.human_name : method_name.to_s.humanize
-     
-      r = '' 
+
+      r = ''
       error_placement = options.merge(@options)[:error_placement] || :inside_label
       r << error_messages(method_name) if error_placement == :before_label
       r << @template.label(@object_name, method_name,
@@ -144,12 +144,12 @@ private
         ''
       end
     end
-    
+
     # Scope a piece of the form to an associated object.
     def with_association(association, &proc) # :yields:
       with_object(association, @object ? @object.send(association) : nil, &proc)
     end
-    
+
     # Scope a piece of the form to another object.
     def with_object(object_name, object = nil)
       object ||= eval("@#{object_name}", @options[:binding])
@@ -158,23 +158,30 @@ private
       yield self
     ensure
       @object, @object_name = old_object, old_object_name
-    end      
-    
+    end
+
   private
     def h(*args); CGI::escapeHTML(*args); end
-    
+
     def options2attributes(options)
       options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
     end
-    
+
     def t(text)
       Object.const_defined?(:Localization) ? Localization._(text) : text
+      if Object.const_defined?(:Localization)
+        Localization._(text)
+      elsif Object.const_defined?(:I18n)
+        I18n.translate(text)
+      else
+        text
+      end
     end
-    
+
     def tag(*args)
       @template.send(:tag, *args)
     end
-    
+
     def content_tag(*args)
       @template.send(:content_tag, *args)
     end
