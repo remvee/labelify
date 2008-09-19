@@ -168,7 +168,6 @@ private
     end
 
     def t(text)
-      Object.const_defined?(:Localization) ? Localization._(text) : text
       if Object.const_defined?(:Localization)
         Localization._(text)
       elsif Object.const_defined?(:I18n)
