@@ -117,11 +117,11 @@ private
     # [+options+]     HTML attributes
     def label(method_name, *args)
       options = Hash === args.last ? args.pop : {}
-      column = @object.class.respond_to?(:columns_hash) && @object.class.columns_hash[method_name.to_s]
+      column_name = @object.class.respond_to?(:human_attribute_name) && @object.class.human_attribute_name(method_name.to_s)
 
       label_value = options.delete(:label_value)
       label_value ||= String === args.first && args.shift
-      label_value ||= column ? column.human_name : method_name.to_s.humanize
+      label_value ||= column_name ? column_name : method_name.to_s.humanize
 
       r = ''
       error_placement = options.merge(@options)[:error_placement] || :inside_label
@@ -167,14 +167,10 @@ private
       options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
     end
 
-    def t(text)
-      if Object.const_defined?(:Localization)
-        Localization._(text)
-      elsif Object.const_defined?(:I18n)
-        I18n.translate(text)
-      else
-        text
-      end
+    if Object.const_defined?(:Localization)
+      def t(text); Localization._(text); end
+    else
+      def t(text); text; end
     end
 
     def tag(*args)
