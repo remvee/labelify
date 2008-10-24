@@ -3,6 +3,13 @@
 A form builder plugin for +form_for+ and family which automatically adds labels to the input fields and places error messages, if they exists for that field, next to the label.
 
 
+== Installation
+
+This is a Rails plugin and can be installed with:
+
+  ruby script/plugin install -f git://github.com/remvee/labelify.git
+
+
 == Usage
 
 Use Labelify.labelled_form_for like you would use +form_for+.  You don't need to make labels, they will be inserted for you automatically.  Label creation can be manipulated by giving +label+ as an option to a field method; +false+ will suppress label rendering and a string will override the fieldname.
