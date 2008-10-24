@@ -89,7 +89,7 @@ private
       r << error_messages(method_name) if error_placement == :before_field
       r << @template.send(selector, @object_name, method_name, *args, &block)
       r << error_messages(method_name) if error_placement == :after_field
-      r
+      content_tag(:div, r, :class => 'field')
     end
 
     # Returns a submit button.  This button has style class +submit+.  If given a +type+ option +button+
