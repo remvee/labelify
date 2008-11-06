@@ -78,11 +78,12 @@ class LabelifyTest < Test::Unit::TestCase
     assert_equal @person.name, element.first["value"]
   end
 
-  def test_labelled_form_for_should_not_render_label_for_hidden_field
+  def test_labelled_form_for_should_not_render_label_and_div_for_hidden_field
     labelled_form_for(:person) do |f|
       @erbout << f.hidden_field(:name)
     end
 
+    assert_select 'div.field', 0
     assert_select 'label[for="person_name"]', 0
   end
 
