@@ -334,6 +334,7 @@ class LabelifyTest < Test::Unit::TestCase
       end
       assert_select selector
       assert_select 'label span.error_message', false
+      assert_select '[error_placement]', false
     end
   end
 

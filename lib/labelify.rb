@@ -74,7 +74,7 @@ private
       options.merge!(:object => @object)
 
       r = ''
-      error_placement = options.merge(@options)[:error_placement]
+      error_placement = options.delete(:error_placement) || @options[:error_placement]
 
       unless @options[:no_label_for].include?(selector)
         label_value = options.delete(:label)
@@ -124,7 +124,7 @@ private
       label_value ||= column_name ? column_name : method_name.to_s.humanize
 
       r = ''
-      error_placement = options.merge(@options)[:error_placement] || :inside_label
+      error_placement = options.delete(:error_placement) || @options[:error_placement] || :inside_label
       r << error_messages(method_name) if error_placement == :before_label
       r << @template.label(@object_name, method_name,
         content_tag(:span, t(label_value), :class => 'field_name') + (error_placement == :inside_label ? error_messages(method_name) : ''),
