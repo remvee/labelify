@@ -24,19 +24,19 @@ class LabelifyTest < Test::Unit::TestCase
 
     @error_on_name = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(nil)
-      mock.should_receive(:on).with(:name).and_return(['name error'])
+      mock.should_receive(:on).with("name").and_return(['name error'])
     end
     @person_with_error_on_name = flexmock('person_with_error_on_name', :name => '', :errors => @error_on_name)
 
     @multiple_errors_on_name_and_base = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(['base error1', 'base error2'])
-      mock.should_receive(:on).with(:name).and_return(['name error1', 'name error2'])
+      mock.should_receive(:on).with("name").and_return(['name error1', 'name error2'])
     end
     @person_with_multiple_errors_on_name_and_base = flexmock('person_with_multiple_errors_on_name_and_base', :name => '', :errors => @multiple_errors_on_name_and_base)
 
     @error_on_base = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(['base error'])
-      mock.should_receive(:on).with(:name).and_return(nil)
+      mock.should_receive(:on).with("name").and_return(nil)
     end
     @person_with_error_on_base = flexmock('person_with_error_on_base', :name => '', :errors => @error_on_base)
 
@@ -317,23 +317,23 @@ class LabelifyTest < Test::Unit::TestCase
 
   def test_error_placement_should_put_error_on_proper_location
     {
-      :after_field  => 'input + span.error_message',
-      :before_field => 'span.error_message + input',
-      :after_label  => 'label + span.error_message',
-      :before_label => 'span.error_message + label',
-    }.each do |placement, selector|
+      :after_field  => /<input.*<span.*error_message/,
+      :before_field => /<span.*error_message.*<input/,
+      :after_label  => /<label.*<span.*error_message/,
+      :before_label => /<span.*error_message.*<label/,
+    }.each do |placement,pattern|
       @erbout = ''
       labelled_form_for(:person, @person_with_error_on_name, :error_placement => placement) do |f|
         @erbout << f.text_field(:name)
       end
-      assert_select selector
+      assert_match pattern, @erbout
       assert_select 'label span.error_message', false
 
       @erbout = ''
       labelled_form_for(:person, @person_with_error_on_name) do |f|
         @erbout << f.text_field(:name, :error_placement => placement)
       end
-      assert_select selector
+      assert_match pattern, @erbout
       assert_select 'label span.error_message', false
       assert_select '[error_placement]', false
     end
@@ -352,8 +352,7 @@ private
     arg.empty? ? nil : arg
   end
 
-  def concat(text, binding)
-    raise unless binding
+  def concat(text, *binding)
     @erbout << text
   end
 

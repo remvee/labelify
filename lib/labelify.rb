@@ -138,8 +138,8 @@ private
 
     # Error messages for given field, concatenated with +to_sentence+.
     def error_messages(method_name)
-      if @object.respond_to?(:errors) && @object.errors.on(method_name)
-        messages = @object.errors.on(method_name)
+      if @object.respond_to?(:errors) && @object.errors.on(method_name.to_s)
+        messages = @object.errors.on(method_name.to_s)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
         " " + content_tag(:span, messages, :class => 'error_message')
       else
