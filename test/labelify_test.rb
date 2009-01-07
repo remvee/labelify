@@ -5,8 +5,8 @@ require 'flexmock/test_unit'
 
 require 'active_support'
 require 'action_view/helpers/tag_helper'
-require 'action_view/helpers/form_helper'
 require 'action_view/helpers/form_tag_helper'
+require 'action_view/helpers/active_record_helper'
 require 'action_controller'
 require 'action_controller/assertions/selector_assertions'
 
@@ -17,6 +17,7 @@ class LabelifyTest < Test::Unit::TestCase
   include ActionView::Helpers::TagHelper
   include ActionView::Helpers::FormHelper
   include ActionView::Helpers::FormTagHelper
+  include ActionView::Helpers::ActiveRecordHelper
   include ActionController::Assertions::SelectorAssertions
 
   def setup
@@ -218,6 +219,23 @@ class LabelifyTest < Test::Unit::TestCase
     end
 
     assert_select '.error_message', 'base error'
+  end
+  
+  def test_labelled_form_for_should_render_general_error_messages
+    labelled_form_for(:person, @person_with_error_on_name) do |f|
+      @erbout << f.error_messages
+    end
+  
+    assert_equal 'There were problems with the following fields:', css_select('.errorExplanation p').first['value']
+  end
+  
+  def test_labelled_form_for_should_render_general_error_messages_customized
+    labelled_form_for(:person, @person_with_error_on_name) do |f|
+      @erbout << f.error_messages(:header_message => "header", :message => "message")
+    end
+  
+    assert_equal 'h2', css_select('.errorExplanation h2').first['value']
+    assert_equal 'message', css_select('.errorExplanation p').first['value']
   end
 
   def test_labelled_form_for_should_render_associate_fields

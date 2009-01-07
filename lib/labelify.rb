@@ -87,9 +87,9 @@ private
         end
       end
 
-      r << error_messages(method_name) if error_placement == :before_field
+      r << inline_error_messages(method_name) if error_placement == :before_field
       r << @template.send(selector, @object_name, method_name, *args, &block)
-      r << error_messages(method_name) if error_placement == :after_field
+      r << inline_error_messages(method_name) if error_placement == :after_field
 
       invisible ? r : content_tag(:div, r, :class => 'field')
     end
@@ -127,17 +127,17 @@ private
 
       r = ''
       error_placement = options.delete(:error_placement) || @options[:error_placement] || :inside_label
-      r << error_messages(method_name) if error_placement == :before_label
+      r << inline_error_messages(method_name) if error_placement == :before_label
       r << @template.label(@object_name, method_name,
-        content_tag(:span, t(label_value), :class => 'field_name') + (error_placement == :inside_label ? error_messages(method_name) : ''),
+        content_tag(:span, t(label_value), :class => 'field_name') + (error_placement == :inside_label ? inline_error_messages(method_name) : ''),
         options.merge(:object => @object)
       )
-      r << error_messages(method_name) if error_placement == :after_label
+      r << inline_error_messages(method_name) if error_placement == :after_label
       r
     end
 
     # Error messages for given field, concatenated with +to_sentence+.
-    def error_messages(method_name)
+    def inline_error_messages(method_name)
       if @object.respond_to?(:errors) && @object.errors.on(method_name.to_s)
         messages = @object.errors.on(method_name.to_s)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
@@ -145,6 +145,11 @@ private
       else
         ''
       end
+    end
+    
+    # Keep the default error_messages
+    def error_messages(options = {})
+      @template.error_messages_for(@object_name, options.merge(:object => @object))
     end
 
     # Scope a piece of the form to an associated object.
