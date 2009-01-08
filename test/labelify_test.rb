@@ -26,6 +26,8 @@ class LabelifyTest < Test::Unit::TestCase
     @error_on_name = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(nil)
       mock.should_receive(:on).with("name").and_return(['name error'])
+      mock.should_receive(:count).and_return(1)
+      mock.should_receive(:full_messages).and_return("full messages")
     end
     @person_with_error_on_name = flexmock('person_with_error_on_name', :name => '', :errors => @error_on_name)
 
@@ -220,22 +222,23 @@ class LabelifyTest < Test::Unit::TestCase
 
     assert_select '.error_message', 'base error'
   end
-  
+
   def test_labelled_form_for_should_render_general_error_messages
     labelled_form_for(:person, @person_with_error_on_name) do |f|
       @erbout << f.error_messages
     end
-  
-    assert_equal 'There were problems with the following fields:', css_select('.errorExplanation p').first['value']
+
+    assert_select '.errorExplanation h2 + p + ul li', :text => 'full messages'
   end
-  
+
   def test_labelled_form_for_should_render_general_error_messages_customized
     labelled_form_for(:person, @person_with_error_on_name) do |f|
       @erbout << f.error_messages(:header_message => "header", :message => "message")
     end
-  
-    assert_equal 'h2', css_select('.errorExplanation h2').first['value']
-    assert_equal 'message', css_select('.errorExplanation p').first['value']
+
+    assert_select '.errorExplanation h2', :text => 'header'
+    assert_select '.errorExplanation h2 + p', :text => 'message'
+    assert_select '.errorExplanation h2 + p + ul li', :text => 'full messages'
   end
 
   def test_labelled_form_for_should_render_associate_fields

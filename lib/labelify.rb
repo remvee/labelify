@@ -146,8 +146,8 @@ private
         ''
       end
     end
-    
-    # Keep the default error_messages
+
+    # Keep the default error_messages.
     def error_messages(options = {})
       @template.error_messages_for(@object_name, options.merge(:object => @object))
     end
