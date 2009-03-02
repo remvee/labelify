@@ -50,6 +50,8 @@ class LabelifyTest < Test::Unit::TestCase
     @address = flexmock('address', :city => 'Amsterdam')
     @person_with_address = flexmock('person_with_address', :name => 'Tester', :address => @address)
 
+    @address_with_error_on_name = flexmock('address_with_error_on_name', :name => '', :errors => @error_on_name)
+
     @erbout = ''
   end
 
@@ -358,6 +360,38 @@ class LabelifyTest < Test::Unit::TestCase
       assert_select 'label span.error_message', false
       assert_select '[error_placement]', false
     end
+  end
+
+  def test_labelled_fields_for_inside_labelled_form_for_should_render_text_field
+    labelled_form_for(:person) do |f|
+      f.labelled_fields_for(:address) do |address|
+        @erbout << address.text_field(:city)
+      end
+    end
+    assert_select 'label[for="person_address_city"]', 1
+    assert_select 'input#person_address_city', 1
+  end
+
+  def test_labelled_fields_for_inside_labelled_form_for_should_allow_indexed_fields
+    labelled_form_for(:person) do |f|
+      f.labelled_fields_for(:address, {:index => '1'}) do |address|
+        @erbout << address.text_field(:city)
+      end
+    end
+    assert_select 'label[for="person_address_1_city"]', 1
+    assert_select 'input#person_address_1_city', 1
+  end
+
+  def test_labelled_form_for_should_render_error_message_for_base
+    labelled_form_for(:person_with_error_on_name) do |f|
+      @erbout << f.text_field(:name)
+      f.labelled_fields_for(:address_with_error_on_name) do |address|
+        @erbout << address.text_field(:name)
+      end
+    end
+
+    assert_select 'label[for="person_with_error_on_name_name"] .error_message', 'name error'
+    assert_select 'label[for="person_with_error_on_name_address_with_error_on_name_name"] .error_message', 'name error'
   end
 
 private

@@ -56,11 +56,58 @@ private
   # all form fields.  All unknown method calls are passed through to
   # the underlying template hoping to hit a form helper method.
   class FormBuilder
+    attr_accessor :object_name, :object, :options
+
     def initialize(object_name, object, template, options, proc) # :nodoc:
       @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc
 
+      @default_options = @options ? @options.slice(:index) : {}
+      if @object_name.to_s.match(/\[(.*)\]$/)
+        @object ||= @template.instance_variable_get("@#{Regexp.last_match(1)}")
+      end
+
       @options[:no_label_for] &&= [*@options[:no_label_for]]
       @options[:no_label_for] ||= [:hidden_field, :label]
+    end
+
+    def labelled_fields_for(object_name, *args, &block)
+      fields_for(object_name, *args, &block)
+    end
+
+    # Taken directly from Rails fields_for implementation
+    def fields_for(record_or_name_or_array, *args, &block)
+      if options.has_key?(:index)
+        index = "[#{options[:index]}]"
+      elsif defined?(@auto_index)
+        self.object_name = @object_name.to_s.sub(/\[\]$/,"")
+        index = "[#{@auto_index}]"
+      else
+        index = ""
+      end
+
+      if options[:builder]
+        args << {} unless args.last.is_a?(Hash)
+        args.last[:builder] ||= options[:builder]
+      end
+
+      case record_or_name_or_array
+      when String, Symbol
+        if nested_attributes_association?(record_or_name_or_array)
+          return fields_for_with_nested_attributes(record_or_name_or_array, args, block)
+        else
+          name = "#{object_name}#{index}[#{record_or_name_or_array}]"
+        end
+      when Array
+        object = record_or_name_or_array.last
+        name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
+        args.unshift(object)
+      else
+        object = record_or_name_or_array
+        name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
+        args.unshift(object)
+      end
+
+      @template.fields_for(name, *args, &block)
     end
 
     # Pass methods to underlying template hoping to hit some homegrown form helper method.
@@ -83,12 +130,12 @@ private
           label_options = {:error_placement => error_placement}
           label_options[:class] = options[:class] if options.include?(:class)
           label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
-          r << label(method_name, label_options)
+          r << label(method_name, objectify_options(label_options))
         end
       end
 
       r << inline_error_messages(method_name) if error_placement == :before_field
-      r << @template.send(selector, @object_name, method_name, *args, &block)
+      r << @template.send(selector, @object_name, method_name, objectify_options(options), &block)
       r << inline_error_messages(method_name) if error_placement == :after_field
 
       invisible ? r : content_tag(:div, r, :class => 'field')
@@ -186,6 +233,47 @@ private
 
     def content_tag(*args)
       @template.send(:content_tag, *args)
+    end
+
+    def objectify_options(options)
+      @default_options.merge(options.merge(:object => @object))
+    end
+
+    def nested_attributes_association?(association_name)
+      @object.respond_to?("#{association_name}_attributes=")
+    end
+
+    def fields_for_with_nested_attributes(association_name, args, block)
+      name = "#{object_name}[#{association_name}_attributes]"
+      association = @object.send(association_name)
+      explicit_object = args.first if args.first.respond_to?(:new_record?)
+
+      if association.is_a?(Array)
+        children = explicit_object ? [explicit_object] : association
+        explicit_child_index = args.last[:child_index] if args.last.is_a?(Hash)
+
+        children.map do |child|
+          fields_for_nested_model("#{name}[#{explicit_child_index || nested_child_index}]", child, args, block)
+        end.join
+      else
+        fields_for_nested_model(name, explicit_object || association, args, block)
+      end
+    end
+
+    def fields_for_nested_model(name, object, args, block)
+      if object.new_record?
+        @template.fields_for(name, object, *args, &block)
+      else
+        @template.fields_for(name, object, *args) do |builder|
+          @template.concat builder.hidden_field(:id)
+          block.call(builder)
+        end
+      end
+    end
+
+    def nested_child_index
+      @nested_child_index ||= -1
+      @nested_child_index += 1
     end
   end
 end
