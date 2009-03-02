@@ -6,6 +6,7 @@ require 'flexmock/test_unit'
 require 'active_support'
 require 'action_view/helpers/tag_helper'
 require 'action_view/helpers/form_tag_helper'
+require 'action_view/helpers/form_options_helper'
 require 'action_view/helpers/active_record_helper'
 require 'action_controller'
 require 'action_controller/assertions/selector_assertions'
@@ -16,6 +17,7 @@ class LabelifyTest < Test::Unit::TestCase
   include Labelify
   include ActionView::Helpers::TagHelper
   include ActionView::Helpers::FormHelper
+  include ActionView::Helpers::FormOptionsHelper
   include ActionView::Helpers::FormTagHelper
   include ActionView::Helpers::ActiveRecordHelper
   include ActionController::Assertions::SelectorAssertions
@@ -81,6 +83,14 @@ class LabelifyTest < Test::Unit::TestCase
     element = css_select('#person_name')
     assert_equal 'person[name]', element.first["name"]
     assert_equal @person.name, element.first["value"]
+  end
+
+  def test_labelled_form_for_should_render_form_with_select_field
+    labelled_form_for(:person) do |f|
+      @erbout << f.select(:name, [['Bob', 'bob']], { :prompt => "Please choose a name" })
+    end
+    assert_select 'label[for="person_name"]', 1
+    assert_select 'select#person_name', 1
   end
 
   def test_labelled_form_for_should_not_render_label_and_div_for_hidden_field

@@ -117,7 +117,7 @@ private
     # [any other value]  the label to use.
     def method_missing(selector, method_name, *args, &block)
       args << {} unless args.last.kind_of?(Hash)
-      options = args.last
+      options = args.pop
       options.merge!(:object => @object)
 
       r = ''
@@ -135,7 +135,7 @@ private
       end
 
       r << inline_error_messages(method_name) if error_placement == :before_field
-      r << @template.send(selector, @object_name, method_name, objectify_options(options), &block)
+      r << @template.send(selector, @object_name, method_name, *(args << objectify_options(options)), &block)
       r << inline_error_messages(method_name) if error_placement == :after_field
 
       invisible ? r : content_tag(:div, r, :class => 'field')
