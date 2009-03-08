@@ -404,6 +404,14 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_with_error_on_name_address_with_error_on_name_name"] .error_message', 'name error'
   end
 
+  def test_base_errors_messages
+    labelled_form_for(:person_with_error_on_base) do |f|
+      @erbout << f.base_error_messages
+    end
+
+    assert_select 'span[class="error_message"]', 'base error'
+  end
+
 private
   def make_span_for_block(object, name, options = {})
     content_tag(:span, yield, :class => 'span_for_block')

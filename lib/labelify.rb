@@ -194,6 +194,15 @@ private
       end
     end
 
+    # Base error messages
+    def base_error_messages
+      if @object.respond_to?(:errors) && @object.errors.on(:base)
+        messages = @object.errors.on(:base)
+        messages = messages.to_sentence if messages.respond_to? :to_sentence
+        content_tag(:span, h(messages), :class => 'error_message')
+      end
+    end
+
     # Keep the default error_messages.
     def error_messages(options = {})
       @template.error_messages_for(@object_name, options.merge(:object => @object))
