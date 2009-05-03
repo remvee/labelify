@@ -412,6 +412,19 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'span[class="error_message"]', 'base error'
   end
 
+  def test_label_placement_should_put_label_on_proper_location
+    {
+      true  => /<label.*<input/,
+      false => /<input.*<label/
+    }.each do |label_before,pattern|
+      @erbout = ''
+      labelled_form_for(:person, @person) do |f|
+        @erbout << f.text_field(:name, :label_before => label_before)
+      end
+      assert_match pattern, @erbout
+    end
+  end
+
 private
   def make_span_for_block(object, name, options = {})
     content_tag(:span, yield, :class => 'span_for_block')

@@ -115,6 +115,9 @@ private
     # [+true+]           include a label (the default).
     # [+false+]          exclude the label.
     # [any other value]  the label to use.
+    # You can also use the option +label_before+
+    # [+true+]           show the label before (as default)
+    # [+false+]          show the label after
     def method_missing(selector, method_name, *args, &block)
       args << {} unless args.last.kind_of?(Hash)
       options = args.pop
@@ -130,13 +133,15 @@ private
           label_options = {:error_placement => error_placement}
           label_options[:class] = options[:class] if options.include?(:class)
           label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
-          r << label(method_name, objectify_options(label_options))
+          label_content = label(method_name, objectify_options(label_options))
         end
       end
 
+      r << label_content if !label_content.nil? && options[:label_before] != false
       r << inline_error_messages(method_name) if error_placement == :before_field
       r << @template.send(selector, @object_name, method_name, *(args << objectify_options(options)), &block)
       r << inline_error_messages(method_name) if error_placement == :after_field
+      r << label_content if !label_content.nil? && options[:label_before] == false
 
       invisible ? r : content_tag(:div, r, :class => 'field')
     end
