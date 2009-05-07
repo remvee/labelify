@@ -414,12 +414,12 @@ class LabelifyTest < Test::Unit::TestCase
 
   def test_label_placement_should_put_label_on_proper_location
     {
-      true  => /<label.*<input/,
-      false => /<input.*<label/
-    }.each do |label_before,pattern|
+      :before_field => /<label.*<input/,
+      :after_field  => /<input.*<label/
+    }.each do |label_placement,pattern|
       @erbout = ''
       labelled_form_for(:person, @person) do |f|
-        @erbout << f.text_field(:name, :label_before => label_before)
+        @erbout << f.text_field(:name, :label_placement => label_placement)
       end
       assert_match pattern, @erbout
     end

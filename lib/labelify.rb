@@ -17,6 +17,7 @@ module Labelify
   #
   # Options:
   # [<code>:error_placement</code>]  one of <code>:before_field</code>, <code>:after_field</code>, <code>:before_label</code>, <code>:after_label</code> and defaults to <code>:inside_label</code>
+  # [<code>:label_placement</code>]  one of <code>:after_field</code> and defaults to <code>:before_field</code>
   # [<code>:no_label_for</code>]     an array of method names not to render a label for
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     object, options = collect_arguments(object_name, *args, &proc)
@@ -115,9 +116,6 @@ private
     # [+true+]           include a label (the default).
     # [+false+]          exclude the label.
     # [any other value]  the label to use.
-    # You can also use the option +label_before+
-    # [+true+]           show the label before (as default)
-    # [+false+]          show the label after
     def method_missing(selector, method_name, *args, &block)
       args << {} unless args.last.kind_of?(Hash)
       options = args.pop
@@ -125,6 +123,7 @@ private
 
       r = ''
       error_placement = options.delete(:error_placement) || @options[:error_placement]
+      label_placement = options.delete(:label_placement) || @options[:label_placement] || :before_field
       invisible = @options[:no_label_for].include?(selector)
 
       unless invisible
@@ -137,11 +136,11 @@ private
         end
       end
 
-      r << label_content if !label_content.nil? && options[:label_before] != false
+      r << label_content if !label_content.nil? && label_placement == :before_field
       r << inline_error_messages(method_name) if error_placement == :before_field
       r << @template.send(selector, @object_name, method_name, *(args << objectify_options(options)), &block)
       r << inline_error_messages(method_name) if error_placement == :after_field
-      r << label_content if !label_content.nil? && options[:label_before] == false
+      r << label_content if !label_content.nil? && label_placement == :after_field
 
       invisible ? r : content_tag(:div, r, :class => 'field')
     end
