@@ -1,5 +1,7 @@
 # Helper module for making labeled forms.
 module Labelify
+  mattr_accessor :default_error_placement, :default_label_placement
+  
   # Create a form for a given model object.  Unlike +form_for+ this variant
   # automatically includes labels and errors.  The +form_builder+ handles all
   # standard form helper methods.  All the field and select sections are decorated
@@ -122,8 +124,8 @@ private
       options.merge!(:object => @object)
 
       r = ''
-      error_placement = options.delete(:error_placement) || @options[:error_placement]
-      label_placement = options.delete(:label_placement) || @options[:label_placement] || :before_field
+      error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
+      label_placement = options.delete(:label_placement) || @options[:label_placement] || Labelify.default_label_placement || :before_field
       invisible = @options[:no_label_for].include?(selector)
 
       unless invisible
@@ -177,7 +179,7 @@ private
       label_value ||= column_name ? column_name : method_name.to_s.humanize
 
       r = ''
-      error_placement = options.delete(:error_placement) || @options[:error_placement] || :inside_label
+      error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       r << inline_error_messages(method_name) if error_placement == :before_label
       r << @template.label(@object_name, method_name,
         content_tag(:span, t(label_value), :class => 'field_name') + (error_placement == :inside_label ? inline_error_messages(method_name) : ''),
