@@ -23,14 +23,14 @@ module Labelify
   # [<code>:no_label_for</code>]     an array of method names not to render a label for
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     object, options = collect_arguments(object_name, *args, &proc)
-    render_base_errors(object, &proc)
+    render_base_errors(object)
     form_for(object_name, object, options, &proc)
   end
 
   # Create a scope around a model object like +form_for+ but without rendering +form+ tags.
   def labelled_fields_for(object_name, *args, &proc) # :yields: form_builder
     object, options = collect_arguments(object_name, *args, &proc)
-    render_base_errors(object, &proc)
+    render_base_errors(object)
     fields_for(object_name, object, options, &proc)
   end
 
@@ -47,11 +47,11 @@ private
     [object, options]
   end
 
-  def render_base_errors(object, &proc)
+  def render_base_errors(object)
     if object.respond_to?(:errors) && object.errors.on(:base)
       messages = object.errors.on(:base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
-      concat(content_tag(:span, h(messages), :class => 'error_message'), proc.binding)
+      concat(content_tag(:span, h(messages), :class => 'error_message'))
     end
   end
 
