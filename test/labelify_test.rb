@@ -23,7 +23,7 @@ class LabelifyTest < Test::Unit::TestCase
   include ActionController::Assertions::SelectorAssertions
 
   def setup
-    @person = flexmock('person', :name => 'Tester', :password => 'Secret', :active => true, :to_param => 1)
+    @person = flexmock('person', :name => 'Tester', :importance => 'Very', :password => 'Secret', :active => true, :to_param => 1)
 
     @error_on_name = flexmock do |mock|
       mock.should_receive(:on).with(:base).and_return(nil)
@@ -136,8 +136,9 @@ class LabelifyTest < Test::Unit::TestCase
   end
 
   def test_labelled_form_for_should_not_render_label_with_multi_no_label_for
-    labelled_form_for(:person, :no_label_for => [:text_field, :password_field]) do |f|
+    labelled_form_for(:person, :no_label_for => [:text_field, "text_area", /password/]) do |f|
       @erbout << f.text_field(:name)
+      @erbout << f.text_area(:importance)
       @erbout << f.password_field(:password)
       @erbout << f.check_box(:active)
     end

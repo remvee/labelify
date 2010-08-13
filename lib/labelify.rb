@@ -20,7 +20,7 @@ module Labelify
   # Options:
   # [<code>:error_placement</code>]  one of <code>:before_field</code>, <code>:after_field</code>, <code>:before_label</code>, <code>:after_label</code> and defaults to <code>:inside_label</code>
   # [<code>:label_placement</code>]  one of <code>:after_field</code> and defaults to <code>:before_field</code>
-  # [<code>:no_label_for</code>]     an array of method names not to render a label for
+  # [<code>:no_label_for</code>]     an array of method names or regular expressions not to render a label for
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     object, options = collect_arguments(object_name, *args, &proc)
     render_base_errors(object)
@@ -126,8 +126,14 @@ private
       r = ''
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       label_placement = options.delete(:label_placement) || @options[:label_placement] || Labelify.default_label_placement || :before_field
-      invisible = @options[:no_label_for].include?(selector)
-
+      
+      invisible = @options[:no_label_for].any? do |matcher|
+        case matcher
+        when Symbol ; matcher.to_s == selector.to_s
+        else          matcher === selector.to_s
+        end
+      end
+      
       unless invisible
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
