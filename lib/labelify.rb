@@ -150,7 +150,7 @@ private
       r << inline_error_messages(method_name) if error_placement == :after_field
       r << label_content if !label_content.nil? && label_placement == :after_field
 
-      invisible ? r : content_tag(:div, r, :class => 'field')
+      invisible || label_value == false ? r : content_tag(:div, r, :class => 'field')
     end
 
     # Returns a submit button.  This button has style class +submit+.  If given a +type+ option +button+

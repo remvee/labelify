@@ -110,11 +110,12 @@ class LabelifyTest < Test::Unit::TestCase
     assert_select 'label[for="person_name"]', 1
   end
 
-  def test_labelled_form_for_should_not_render_label_with_false
+  def test_labelled_form_for_should_not_render_field_div_and_label_with_false
     labelled_form_for(:person) do |f|
       @erbout << f.text_field(:name, :label => false)
     end
 
+    assert_select 'div.field', 0
     assert_select 'label[for="person_name"]', 0
   end
 
