@@ -179,7 +179,8 @@ private
     # [+options+]     HTML attributes
     def label(method_name, *args)
       options = Hash === args.last ? args.pop : {}
-      options = options.merge(:object => @object).merge(options.delete(:label_options_proc).try(:call, method_name, options) || {})
+      options = options.merge(:object => @object)
+      options.merge!(options.delete(:label_options_proc).try(:call, method_name, options) || {})
       column_name = @object.class.respond_to?(:human_attribute_name) && @object.class.human_attribute_name(method_name.to_s)
 
       label_value = options.delete(:label_value)
