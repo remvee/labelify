@@ -187,10 +187,12 @@ private
       r = ''
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       r << inline_error_messages(method_name) if error_placement == :before_label
-      r << @template.label(@object_name, method_name,
-        content_tag(:span, t(label_value), :class => 'field_name') + (error_placement == :inside_label ? inline_error_messages(method_name) : ''),
-        options.merge(:object => @object)
-      )
+      r << @template.label(@object_name,
+                           method_name,
+                           content_tag(:span, t(label_value), :class => 'field_name') +
+                           " " +
+                           (error_placement == :inside_label ? inline_error_messages(method_name) : ''),
+                           options.merge(:object => @object))
       r << inline_error_messages(method_name) if error_placement == :after_label
       r
     end
@@ -200,7 +202,7 @@ private
       if @object.respond_to?(:errors) && @object.errors.on(method_name.to_s)
         messages = @object.errors.on(method_name.to_s)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
-        " " + content_tag(:span, messages, :class => 'error_message')
+        content_tag(:span, messages, :class => 'error_message')
       else
         ''
       end
