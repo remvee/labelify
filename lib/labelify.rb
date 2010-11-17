@@ -121,7 +121,7 @@ private
     def method_missing(selector, method_name, *args, &block)
       args << {} unless args.last.kind_of?(Hash)
       options = args.pop
-      options.merge!(:object => @object)
+      options = options.merge(:object => @object)
 
       r = ''
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
@@ -138,7 +138,8 @@ private
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
           label_options = {:error_placement => error_placement}
-          label_options[:class] = options[:class] if options.include?(:class)
+          label_options[:class] = options[:class]
+          label_options[:label_options_proc] = options.delete(:label_options_proc) || @options[:label_options_proc]
           label_options[:label_value] = label_value unless label_value.kind_of? TrueClass
           label_content = label(method_name, objectify_options(label_options))
         end
@@ -178,6 +179,7 @@ private
     # [+options+]     HTML attributes
     def label(method_name, *args)
       options = Hash === args.last ? args.pop : {}
+      options = options.merge(:object => @object).merge(options.delete(:label_options_proc).try(:call, method_name, options) || {})
       column_name = @object.class.respond_to?(:human_attribute_name) && @object.class.human_attribute_name(method_name.to_s)
 
       label_value = options.delete(:label_value)
@@ -192,7 +194,7 @@ private
                            content_tag(:span, t(label_value), :class => 'field_name') +
                            " " +
                            (error_placement == :inside_label ? inline_error_messages(method_name) : ''),
-                           options.merge(:object => @object))
+                           options)
       r << inline_error_messages(method_name) if error_placement == :after_label
       r
     end

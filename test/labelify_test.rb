@@ -427,6 +427,14 @@ class LabelifyTest < Test::Unit::TestCase
     end
   end
 
+  def test_label_options_proc_allows_setting_label_classname
+    labelled_form_for(:person) do |f|
+      @erbout << f.text_field(:name, :label_options_proc => lambda{|m,options| {:class => "snork"}})
+    end
+
+    assert_select "label.snork"
+  end
+
 private
   def make_span_for_block(object, name, options = {})
     content_tag(:span, yield, :class => 'span_for_block')
