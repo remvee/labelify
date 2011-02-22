@@ -88,10 +88,8 @@ private
         index = ""
       end
 
-      if options[:builder]
-        args << {} unless args.last.is_a?(Hash)
-        args.last[:builder] ||= options[:builder]
-      end
+      args << {} unless args.last.is_a?(Hash)
+      args.last[:builder] ||= options[:builder] || Labelify::FormBuilder
 
       case record_or_name_or_array
       when String, Symbol
