@@ -65,7 +65,7 @@ private
       @object_name, @object, @template, @options, @proc = object_name, object, template, options, proc
 
       @default_options = @options ? @options.slice(:index) : {}
-      if @object_name.to_s.match(/\[(.*)\]$/)
+      if @object_name.to_s.match(/\[(\w+)\]$/)
         @object ||= @template.instance_variable_get("@#{Regexp.last_match(1)}")
       end
 
