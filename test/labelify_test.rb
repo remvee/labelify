@@ -434,6 +434,14 @@ class LabelifyTest < Test::Unit::TestCase
 
     assert_select "label.snork"
   end
+  
+  def test_allow_helper_method_without_method_name_argument
+    labelled_form_for(:person) do |f|
+      @erbout << f.helper_without_method_name_argument
+    end
+    assert_select "span[id='helper_without_method_name_argument']"
+    assert_select "label", :count => 0
+  end
 
 private
   def make_span_for_block(object, name, options = {})
@@ -442,6 +450,10 @@ private
 
   def my_text_field(object, method, options)
     tag(:input, :value => options[:object].send(method), :type => 'my-text')
+  end
+  
+  def helper_without_method_name_argument(object, options)
+    tag(:span, :id => "helper_without_method_name_argument")
   end
 
   def url_for(arg)

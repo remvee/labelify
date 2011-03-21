@@ -118,11 +118,13 @@ private
     # [+true+]           include a label (the default).
     # [+false+]          exclude the label.
     # [any other value]  the label to use.
-    def method_missing(selector, method_name, *args, &block)
+    def method_missing(selector, *args, &block)
       args << {} unless args.last.kind_of?(Hash)
       options = args.pop
       options = options.merge(:object => @object)
 
+      method_name = args[0]
+      
       r = ''
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       label_placement = options.delete(:label_placement) || @options[:label_placement] || Labelify.default_label_placement || :before_field
@@ -134,7 +136,7 @@ private
         end
       end
       
-      unless invisible
+      if ! invisible && method_name
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
           label_options = {:error_placement => error_placement}
@@ -147,7 +149,7 @@ private
 
       r << label_content if !label_content.nil? && label_placement == :before_field
       r << inline_error_messages(method_name) if error_placement == :before_field
-      r << @template.send(selector, @object_name, method_name, *(args << objectify_options(options)), &block)
+      r << @template.send(selector, @object_name, *(args << objectify_options(options)), &block)
       r << inline_error_messages(method_name) if error_placement == :after_field
       r << label_content if !label_content.nil? && label_placement == :after_field
 
