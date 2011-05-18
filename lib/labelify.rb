@@ -89,6 +89,7 @@ private
       end
 
       args << {} unless args.last.is_a?(Hash)
+      args.last.merge!(@options.slice(:no_label_for, :error_placement, :label_placement))
       args.last[:builder] ||= options[:builder] || Labelify::FormBuilder
 
       case record_or_name_or_array
