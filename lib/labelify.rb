@@ -48,8 +48,8 @@ private
   end
 
   def render_base_errors(object)
-    if object.respond_to?(:errors) && object.errors.on(:base)
-      messages = object.errors.on(:base)
+    if object.respond_to?(:errors) && Labelify.errors_on(object, :base)
+      messages = Labelify.errors_on(object, :base)
       messages = messages.to_sentence if messages.respond_to? :to_sentence
       concat(content_tag(:span, h(messages), :class => 'error_message'))
     end
@@ -124,7 +124,7 @@ private
 
       method_name = args[0]
       
-      r = ''
+      r = Labelify.empty_container
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       label_placement = options.delete(:label_placement) || @options[:label_placement] || Labelify.default_label_placement || :before_field
       
@@ -188,7 +188,7 @@ private
       label_value ||= String === args.first && args.shift
       label_value ||= column_name ? column_name : method_name.to_s.humanize
 
-      r = ''
+      r = Labelify.empty_container
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       r << inline_error_messages(method_name) if error_placement == :before_label
       r << @template.label(@object_name,
@@ -203,8 +203,8 @@ private
 
     # Error messages for given field, concatenated with +to_sentence+.
     def inline_error_messages(method_name)
-      if @object.respond_to?(:errors) && @object.errors.on(method_name.to_s)
-        messages = @object.errors.on(method_name.to_s)
+      if @object.respond_to?(:errors) && Labelify.errors_on(@object, method_name.to_s)
+        messages = Labelify.errors_on(@object, method_name.to_s)
         messages = messages.kind_of?(Array) ? messages.map{|m|t(m)}.to_sentence : t(messages)
         content_tag(:span, messages, :class => 'error_message')
       else
@@ -214,8 +214,8 @@ private
 
     # Base error messages
     def base_error_messages
-      if @object.respond_to?(:errors) && @object.errors.on(:base)
-        messages = @object.errors.on(:base)
+      if @object.respond_to?(:errors) && Labelify.errors_on(@object, :base)
+        messages = Labelify.errors_on(@object, :base)
         messages = messages.to_sentence if messages.respond_to? :to_sentence
         content_tag(:span, h(messages), :class => 'error_message')
       end
@@ -243,7 +243,7 @@ private
 
   private
     def h(*args); CGI::escapeHTML(*args); end
-
+    
     def options2attributes(options)
       options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
     end
@@ -303,4 +303,13 @@ private
       @nested_child_index += 1
     end
   end
+  
+  if ::Rails::VERSION::MAJOR < 3
+    def errors_on(object, attr); object.errors.on(attr); end
+    def empty_container; ''; end
+  else
+    def errors_on(object, attr); object.errors[attr]; end
+    def empty_container; ActiveSupport::SafeBuffer.new; end
+  end
+  module_function :errors_on, :empty_container
 end
