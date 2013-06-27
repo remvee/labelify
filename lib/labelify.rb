@@ -1,7 +1,7 @@
 # Helper module for making labeled forms.
 module Labelify
   mattr_accessor :default_error_placement, :default_label_placement
-  
+
   # Create a form for a given model object.  Unlike +form_for+ this variant
   # automatically includes labels and errors.  The +form_builder+ handles all
   # standard form helper methods.  All the field and select sections are decorated
@@ -18,9 +18,19 @@ module Labelify
   #   <% end %>
   #
   # Options:
-  # [<code>:error_placement</code>]  one of <code>:before_field</code>, <code>:after_field</code>, <code>:before_label</code>, <code>:after_label</code> and defaults to <code>:inside_label</code>
-  # [<code>:label_placement</code>]  one of <code>:after_field</code> and defaults to <code>:before_field</code>
-  # [<code>:no_label_for</code>]     an array of method names or regular expressions not to render a label for
+  # [<code>:error_placement</code>]  one of <code>:before_field</code>,
+  #                                  <code>:after_field</code>,
+  #                                  <code>:before_label</code>,
+  #                                  <code>:after_label</code> and
+  #                                  defaults to
+  #                                  <code>:inside_label</code>
+  # [<code>:label_placement</code>]  one of <code>:after_field</code>
+  #                                  and defaults to
+  #                                  <code>:before_field</code>
+  # [<code>:no_label_for</code>]     an array of method names or regular
+  #                                  expressions not to render a label for
+  # [<code>:before_field</code>]     text inserted before field element
+  # [<code>:after_field</code>]      text inserted after field element
   def labelled_form_for(object_name, *args, &proc) # :yields: form_builder
     object, options = collect_arguments(object_name, *args, &proc)
     render_base_errors(object)
@@ -123,18 +133,17 @@ private
       options = options.merge(:object => @object)
 
       method_name = args[0]
-      
       r = Labelify.empty_container
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       label_placement = options.delete(:label_placement) || @options[:label_placement] || Labelify.default_label_placement || :before_field
-      
+
       invisible = @options[:no_label_for].any? do |matcher|
         case matcher
         when Symbol ; matcher.to_s == selector.to_s
         else          matcher === selector.to_s
         end
       end
-      
+
       if ! invisible && method_name
         label_value = options.delete(:label)
         if (label_value.nil? || label_value != false) && !options.delete(:no_label)
@@ -148,7 +157,9 @@ private
 
       r << label_content if !label_content.nil? && label_placement == :before_field
       r << inline_error_messages(method_name) if error_placement == :before_field
+      r << options[:before_field] if options[:before_field]
       r << @template.send(selector, @object_name, *(args << objectify_options(options)), &block)
+      r << options[:after_field] if options[:after_field]
       r << inline_error_messages(method_name) if error_placement == :after_field
       r << label_content if !label_content.nil? && label_placement == :after_field
 
@@ -243,7 +254,7 @@ private
 
   private
     def h(*args); CGI::escapeHTML(*args); end
-    
+
     def options2attributes(options)
       options.map { |k,v| "#{k}=\"#{h v.to_s}\"" }.join(' ')
     end
@@ -303,7 +314,7 @@ private
       @nested_child_index += 1
     end
   end
-  
+
   if ::Rails::VERSION::MAJOR < 3
     def errors_on(object, attr); object.errors.on(attr); end
     def empty_container; ''; end
