@@ -30,7 +30,7 @@ class LabelifyTest < Test::Unit::TestCase
       mock.should_receive(:on).with(:base).and_return(nil)
       mock.should_receive(:on).with("name").and_return(['name error'])
       mock.should_receive(:count).and_return(1)
-      mock.should_receive(:full_messages).and_return("full messages")
+      mock.should_receive(:full_messages).and_return(["full messages"])
     end
     @person_with_error_on_name = flexmock('person_with_error_on_name', :name => '', :errors => @error_on_name)
 
@@ -435,7 +435,7 @@ class LabelifyTest < Test::Unit::TestCase
 
     assert_select "label.snork"
   end
-  
+
   def test_allow_helper_method_without_method_name_argument
     labelled_form_for(:person) do |f|
       @erbout << f.helper_without_method_name_argument
@@ -452,7 +452,7 @@ private
   def my_text_field(object, method, options)
     tag(:input, :value => options[:object].send(method), :type => 'my-text')
   end
-  
+
   def helper_without_method_name_argument(object, options)
     tag(:span, :id => "helper_without_method_name_argument")
   end
