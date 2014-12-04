@@ -49,7 +49,7 @@ private
     options = Hash === args.last ? args.pop : {}
     options = options.merge(:binding => proc.binding, :builder => FormBuilder)
 
-    object = *args
+    object = args.first
     if [String,Symbol].include?(object_name.class)
       object ||= instance_variable_get("@#{object_name.to_s.sub(/\[\]$/, '')}")
     end
