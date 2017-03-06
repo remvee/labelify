@@ -18,6 +18,7 @@ module Labelify
   #   <% end %>
   #
   # Options:
+  # [<code>:field_class</code>]      extra class name for field element
   # [<code>:error_placement</code>]  one of <code>:before_field</code>,
   #                                  <code>:after_field</code>,
   #                                  <code>:before_label</code>,
@@ -136,6 +137,7 @@ private
       r = Labelify.empty_container
       error_placement = options.delete(:error_placement) || @options[:error_placement] || Labelify.default_error_placement || :inside_label
       label_placement = options.delete(:label_placement) || @options[:label_placement] || Labelify.default_label_placement || :before_field
+      field_class = options.delete(:field_class)
 
       invisible = @options[:no_label_for].any? do |matcher|
         case matcher
@@ -163,7 +165,7 @@ private
       r << inline_error_messages(method_name) if error_placement == :after_field
       r << label_content if !label_content.nil? && label_placement == :after_field
 
-      invisible || label_value == false ? r : content_tag(:div, r, :class => 'field')
+      invisible || label_value == false ? r : content_tag(:div, r, :class => ['field', field_class].compact.join(' '))
     end
 
     # Returns a submit button.  This button has style class +submit+.  If given a +type+ option +button+
