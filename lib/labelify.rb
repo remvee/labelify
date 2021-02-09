@@ -119,7 +119,6 @@ private
         name = "#{object_name}#{index}[#{ActionController::RecordIdentifier.singular_class_name(object)}]"
         args.unshift(object)
       end
-
       @template.fields_for(name, *args, &block)
     end
 
@@ -285,7 +284,11 @@ private
 
     def fields_for_with_nested_attributes(association_name, args, block)
       name = "#{object_name}[#{association_name}_attributes]"
-      association = @object.send(association_name)
+      if args.first.is_a?(Array)
+        association = args.first
+      else
+        association = @object.send(association_name)
+      end
       explicit_object = args.first if args.first.respond_to?(:new_record?)
 
       if association.is_a?(Array)
